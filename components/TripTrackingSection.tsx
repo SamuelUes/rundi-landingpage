@@ -7,7 +7,7 @@ import SectionHeader from './SectionHeader';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
 import { typography } from '../theme/typography';
-import { fetchPublicRideTracking, PublicRideTrackingRide } from '../functions';
+import { fetchPublicRideTracking, PublicRideTrackingRide } from '../functions/publicRideTrackingClient';
 import TrackingDynamicMap from './TrackingDynamicMap';
 
 type TripStatus =
