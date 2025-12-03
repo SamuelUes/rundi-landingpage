@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+.next-cache/
+out/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Testing / coverage
+coverage/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Env files (do NOT commit secrets)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS / misc
+*.tgz
+*.zip
+
+# TypeScript
+*.tsbuildinfo
+
+# Turbo / SWC / cache
+.turbo/
+.swc/
+
+# Next image cache
+public/media/cache/
+
+# Local debug / temp
+.tmp/
+.temp/
