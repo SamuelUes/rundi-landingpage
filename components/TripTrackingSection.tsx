@@ -7,7 +7,10 @@ import SectionHeader from './SectionHeader';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
 import { typography } from '../theme/typography';
-import { fetchPublicRideTracking, PublicRideTrackingRide } from '../../functions';
+import {
+  fetchPublicRideTracking,
+  type PublicRideTrackingRide,
+} from '../../functions/publicRideTrackingClient';
 import TrackingDynamicMap from './TrackingDynamicMap';
 import { useThemeLanguage } from '../theme/ThemeContext';
 import type { LanguageCode } from '../theme/ThemeContext';
