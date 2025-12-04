@@ -10,7 +10,7 @@ import { typography } from '../theme/typography';
 import {
   fetchPublicRideTracking,
   type PublicRideTrackingRide,
-} from '../../functions/publicRideTrackingClient';
+} from '../functions/publicRideTrackingClient';
 import TrackingDynamicMap from './TrackingDynamicMap';
 import { useThemeLanguage } from '../theme/ThemeContext';
 import type { LanguageCode } from '../theme/ThemeContext';
