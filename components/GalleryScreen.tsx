@@ -4,6 +4,7 @@ import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
 import { typography } from '../theme/typography';
 import HeaderNav from './HeaderNav';
+import { useThemeLanguage } from '../theme/ThemeContext';
 
 const clientHomeProto = require('../assets/images/prototipe_phones/clienthome_prototipe.png');
 const driverHomeProto = require('../assets/images/prototipe_phones/driverhome_prototipe.png');
@@ -27,10 +28,15 @@ const GalleryScreen: React.FC = () => {
   const [hoveredTop, setHoveredTop] = useState<'client' | 'driver' | null>(null);
   const [hoveredBottom, setHoveredBottom] = useState<'available' | 'active' | null>(null);
 
+  const { colors: themeColors } = useThemeLanguage();
+
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: themeColors.background }]}> 
       <HeaderNav />
-      <ScrollView contentContainerStyle={styles.scrollContent} bounces={false}>
+      <ScrollView
+        contentContainerStyle={[styles.scrollContent, { backgroundColor: themeColors.background }]}
+        bounces={false}
+      >
         <View style={styles.container}>
           <Text style={styles.title}>Galería</Text>
           <Text style={styles.subtitle}>

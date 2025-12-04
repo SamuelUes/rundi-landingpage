@@ -3,11 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import App from '../App';
-import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
+import { useThemeLanguage } from '../theme/ThemeContext';
 
 export default function Page() {
   const [ready, setReady] = useState(false);
+  const { colors } = useThemeLanguage();
 
   useEffect(() => {
     // Pequeño delay para evitar el flash de HTML sin estilos al hidratar
@@ -47,13 +48,12 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
+    // colores se aplican usando contexto en el wrapper
     alignItems: 'center',
   },
   loadingText: {
     marginTop: 12,
     fontSize: typography.body,
-    color: colors.textSecondary,
+    // color se aplica desde el contexto a través de estilos inline si fuera necesario
   },
 });

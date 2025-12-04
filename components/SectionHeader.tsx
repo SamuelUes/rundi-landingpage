@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { layout } from '../theme/layout';
+import { useThemeLanguage } from '../theme/ThemeContext';
 
 type Props = {
   title: string;
@@ -12,11 +13,14 @@ type Props = {
 
 const SectionHeader: React.FC<Props> = ({ title, subtitle, align = 'left' }) => {
   const isCenter = align === 'center';
+  const { colors: themeColors } = useThemeLanguage();
 
   return (
     <View style={[styles.container, isCenter && styles.center]}>
-      <Text style={styles.title}>{title}</Text>
-      {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+      <Text style={[styles.title, { color: themeColors.text }]}>{title}</Text>
+      {subtitle ? (
+        <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>{subtitle}</Text>
+      ) : null}
     </View>
   );
 };

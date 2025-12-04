@@ -7,8 +7,10 @@ import SectionHeader from './SectionHeader';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
 import { typography } from '../theme/typography';
-import { fetchPublicRideTracking, PublicRideTrackingRide } from '../functions/publicRideTrackingClient';
+import { fetchPublicRideTracking, PublicRideTrackingRide } from '../../functions';
 import TrackingDynamicMap from './TrackingDynamicMap';
+import { useThemeLanguage } from '../theme/ThemeContext';
+import type { LanguageCode } from '../theme/ThemeContext';
 
 type TripStatus =
   | 'driver_on_way'
@@ -157,13 +159,140 @@ function getLocationLabel(location: any | null | undefined, fallback: string): s
   return first || fallback;
 }
 
-const statusLabels: Record<TripStatus, string> = {
-  driver_on_way: 'Conductor en camino',
-  driver_arrived: 'Conductor ha llegado',
-  in_progress: 'Viaje en curso',
-  pending_payment: 'Pendiente de pago',
-  completed: 'Completado',
-  canceled: 'Cancelado',
+type TrackingCopy = {
+  sectionTitle: string;
+  sectionSubtitle: string;
+  inputLabel: string;
+  inlinePlaceholder: string;
+  overlayPlaceholder: string;
+  viewButtonIdle: string;
+  viewButtonLoading: string;
+  simulateShort: string;
+  simulateProgress: string;
+  helperText: string;
+  statusLabel: string;
+  estimatedProgressPrefix: string;
+  cancelSimulation: string;
+  routeProgressTitle: string;
+  routeRealtime: string;
+  routeEstimated: string;
+  timeUnit: string;
+  distanceUnit: string;
+  originFallback: string;
+  extraFallback: string;
+  finalFallback: string;
+  errorFetch: string;
+  errorUnexpected: string;
+};
+
+const statusLabelsByLanguage: Record<LanguageCode, Record<TripStatus, string>> = {
+  es: {
+    driver_on_way: 'Conductor en camino',
+    driver_arrived: 'Conductor ha llegado',
+    in_progress: 'Viaje en curso',
+    pending_payment: 'Pendiente de pago',
+    completed: 'Completado',
+    canceled: 'Cancelado',
+  },
+  en: {
+    driver_on_way: 'Driver on the way',
+    driver_arrived: 'Driver has arrived',
+    in_progress: 'Trip in progress',
+    pending_payment: 'Pending payment',
+    completed: 'Completed',
+    canceled: 'Canceled',
+  },
+  zh: {
+    driver_on_way: '司机在路上',
+    driver_arrived: '司机已到达',
+    in_progress: '行程进行中',
+    pending_payment: '待支付',
+    completed: '已完成',
+    canceled: '已取消',
+  },
+};
+
+const trackingCopy: Record<LanguageCode, TrackingCopy> = {
+  es: {
+    sectionTitle: 'Sigue tu viaje en tiempo real',
+    sectionSubtitle:
+      'Ingresa el ID de tu viaje para ver la ruta, la ubicación del vehículo y los puntos de origen y destinos.',
+    inputLabel: 'ID del viaje',
+    inlinePlaceholder: '-Oc65hcWJrBzY2EnrwVO',
+    overlayPlaceholder: 'Pegá aquí el ID del viaje',
+    viewButtonIdle: 'Ver viaje',
+    viewButtonLoading: 'Cargando…',
+    simulateShort: 'Simular',
+    simulateProgress: 'Simular progreso',
+    helperText:
+      'Esta sección se conectará con los datos reales de la app para mostrar el recorrido del viaje, la ubicación del vehículo y los puntos de origen, destino extra y destino final.',
+    statusLabel: 'Estado del viaje:',
+    estimatedProgressPrefix: 'Progreso estimado',
+    cancelSimulation: 'Simular cancelación',
+    routeProgressTitle: 'Progreso del viaje',
+    routeRealtime: 'Ruta en tiempo real usando la ubicación del vehículo.',
+    routeEstimated: 'Mostrando un progreso estimado del viaje.',
+    timeUnit: 'min',
+    distanceUnit: 'km',
+    originFallback: 'Origen',
+    extraFallback: 'Destino extra',
+    finalFallback: 'Destino final',
+    errorFetch: 'No se pudo obtener la información del viaje.',
+    errorUnexpected: 'Error obteniendo la información del viaje.',
+  },
+  en: {
+    sectionTitle: 'Track your trip in real time',
+    sectionSubtitle:
+      'Enter your trip ID to see the route, vehicle location and origin/destination points.',
+    inputLabel: 'Trip ID',
+    inlinePlaceholder: '-Oc65hcWJrBzY2EnrwVO',
+    overlayPlaceholder: 'Paste your trip ID here',
+    viewButtonIdle: 'View trip',
+    viewButtonLoading: 'Loading…',
+    simulateShort: 'Simulate',
+    simulateProgress: 'Simulate progress',
+    helperText:
+      'This section will connect to real app data to show the trip route, vehicle location, and origin, extra stop and final destination points.',
+    statusLabel: 'Trip status:',
+    estimatedProgressPrefix: 'Estimated progress',
+    cancelSimulation: 'Simulate cancellation',
+    routeProgressTitle: 'Trip progress',
+    routeRealtime: 'Real-time route using the vehicle location.',
+    routeEstimated: 'Showing an estimated trip progress.',
+    timeUnit: 'min',
+    distanceUnit: 'km',
+    originFallback: 'Origin',
+    extraFallback: 'Extra stop',
+    finalFallback: 'Final destination',
+    errorFetch: 'Could not get trip information.',
+    errorUnexpected: 'Error fetching trip information.',
+  },
+  zh: {
+    sectionTitle: '实时查看你的行程',
+    sectionSubtitle: '输入行程 ID，即可查看路线、车辆位置以及起点和各个目的地。',
+    inputLabel: '行程 ID',
+    inlinePlaceholder: '-Oc65hcWJrBzY2EnrwVO',
+    overlayPlaceholder: '在这里粘贴行程 ID',
+    viewButtonIdle: '查看行程',
+    viewButtonLoading: '加载中…',
+    simulateShort: '模拟',
+    simulateProgress: '模拟进度',
+    helperText:
+      '此区域会连接到真实应用数据，展示行程路线、车辆位置以及起点、途经点和最终目的地。',
+    statusLabel: '行程状态：',
+    estimatedProgressPrefix: '预估进度',
+    cancelSimulation: '模拟取消',
+    routeProgressTitle: '行程进度',
+    routeRealtime: '基于车辆实时位置展示路线。',
+    routeEstimated: '当前显示的是预估行程进度。',
+    timeUnit: '分钟',
+    distanceUnit: '公里',
+    originFallback: '起点',
+    extraFallback: '途经点',
+    finalFallback: '终点',
+    errorFetch: '无法获取行程信息。',
+    errorUnexpected: '获取行程信息时出错。',
+  },
 };
 
 const progressOrder: TripStatus[] = [
@@ -172,6 +301,7 @@ const progressOrder: TripStatus[] = [
   'in_progress',
   'pending_payment',
   'completed',
+  'canceled',
 ];
 
 interface TripTrackingSectionProps {
@@ -188,6 +318,9 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { language, colors: themeColors } = useThemeLanguage();
+  const copy = trackingCopy[language];
+  const statusLabels = statusLabelsByLanguage[language];
 
   const fetchRideData = async (id: string) => {
     const trimmedId = id.trim();
@@ -207,12 +340,12 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
       } else {
         setApiRide(null);
         setCurrentStatus(null);
-        setError(response.error || 'No se pudo obtener la información del viaje.');
+        setError(response.error || copy.errorFetch);
       }
     } catch (err: any) {
       setApiRide(null);
       setCurrentStatus(null);
-      setError(typeof err?.message === 'string' ? err.message : 'Error obteniendo la información del viaje.');
+      setError(typeof err?.message === 'string' ? err.message : copy.errorUnexpected);
     } finally {
       setLoading(false);
     }
@@ -280,11 +413,11 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams]);
 
-  const originLabel = getLocationLabel(apiRide?.origin, 'Origen');
-  const extraLabel = getLocationLabel(apiRide?.extraDestination, 'Destino extra');
+  const originLabel = getLocationLabel(apiRide?.origin, copy.originFallback);
+  const extraLabel = getLocationLabel(apiRide?.extraDestination, copy.extraFallback);
   const finalLabel = getLocationLabel(
     apiRide?.finalDestination || apiRide?.destination,
-    'Destino final',
+    copy.finalFallback,
   );
 
   const estimatedDistanceKm =
@@ -307,11 +440,11 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
 
         <View style={styles.overlayCardContainer}>
           <View style={styles.overlayCard}>
-            <Text style={styles.overlayLabel}>ID del viaje</Text>
+            <Text style={styles.overlayLabel}>{copy.inputLabel}</Text>
             <TextInput
               value={rideId}
               onChangeText={setRideId}
-              placeholder="Pegá aquí el ID del viaje"
+              placeholder={copy.overlayPlaceholder}
               placeholderTextColor={colors.textSecondary}
               style={styles.overlayInput}
             />
@@ -322,7 +455,9 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
                 activeOpacity={0.85}
                 onPress={handleViewTrip}
               >
-                <Text style={styles.overlayPrimaryButtonText}>{loading ? 'Cargando…' : 'Ver viaje'}</Text>
+                <Text style={styles.overlayPrimaryButtonText}>
+                  {loading ? copy.viewButtonLoading : copy.viewButtonIdle}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -330,7 +465,7 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
                 activeOpacity={0.85}
                 onPress={handleSimulateNext}
               >
-                <Text style={styles.overlaySecondaryButtonText}>Simular</Text>
+                <Text style={styles.overlaySecondaryButtonText}>{copy.simulateShort}</Text>
               </TouchableOpacity>
             </View>
 
@@ -377,13 +512,11 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
                 <View style={styles.routeTimeTextContainer}>
                   <Text style={styles.routeTimeMain}>
                     {estimatedDurationMinutes != null && estimatedDistanceKm != null
-                      ? `${estimatedDurationMinutes} min (${estimatedDistanceKm.toFixed(1)} km)`
-                      : 'Progreso del viaje'}
+                      ? `${estimatedDurationMinutes} ${copy.timeUnit} (${estimatedDistanceKm.toFixed(1)} ${copy.distanceUnit})`
+                      : copy.routeProgressTitle}
                   </Text>
                   <Text style={styles.routeTimeSub}>
-                    {apiRide?.hasTracking
-                      ? 'Ruta en tiempo real usando la ubicación del vehículo.'
-                      : 'Mostrando un progreso estimado del viaje.'}
+                    {apiRide?.hasTracking ? copy.routeRealtime : copy.routeEstimated}
                   </Text>
                 </View>
               </View>
@@ -418,18 +551,18 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
   return (
     <View style={styles.root}>
       <SectionHeader
-        title="Sigue tu viaje en tiempo real"
-        subtitle="Ingresa el ID de tu viaje para ver la ruta, la ubicación del vehículo y los puntos de origen y destinos."
+        title={copy.sectionTitle}
+        subtitle={copy.sectionSubtitle}
         align="center"
       />
 
       <View style={styles.container}>
         <View style={styles.left}>
-          <Text style={styles.label}>ID del viaje</Text>
+          <Text style={[styles.label, { color: themeColors.textSecondary }]}>{copy.inputLabel}</Text>
           <TextInput
             value={rideId}
             onChangeText={setRideId}
-            placeholder="-Oc65hcWJrBzY2EnrwVO"
+            placeholder={copy.inlinePlaceholder}
             placeholderTextColor={colors.textSecondary}
             style={styles.input}
           />
@@ -440,7 +573,9 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
               activeOpacity={0.85}
               onPress={handleViewTrip}
             >
-              <Text style={styles.primaryButtonText}>{loading ? 'Cargando…' : 'Ver viaje'}</Text>
+              <Text style={styles.primaryButtonText}>
+                {loading ? copy.viewButtonLoading : copy.viewButtonIdle}
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -448,14 +583,11 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
               activeOpacity={0.85}
               onPress={handleSimulateNext}
             >
-              <Text style={styles.secondaryButtonText}>Simular progreso</Text>
+              <Text style={styles.secondaryButtonText}>{copy.simulateProgress}</Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.helperText}>
-            Esta sección se conectará con los datos reales de la app para mostrar el recorrido del viaje, la ubicación del
-            vehículo y los puntos de origen, destino extra y destino final.
-          </Text>
+          <Text style={[styles.helperText, { color: themeColors.textSecondary }]}>{copy.helperText}</Text>
 
           {error && (
             <Text style={styles.errorText}>
@@ -465,7 +597,7 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
 
           {currentStatus && (
             <View style={styles.statusBox}>
-              <Text style={styles.statusLabel}>Estado del viaje:</Text>
+              <Text style={styles.statusLabel}>{copy.statusLabel}</Text>
               <Text
                 style={[
                   styles.statusText,
@@ -478,7 +610,8 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
 
               {apiRide && typeof apiRide.progress === 'number' && (
                 <Text style={styles.progressText}>
-                  Progreso estimado: {Math.round(Math.min(Math.max(apiRide.progress, 0), 100))}%
+                  {copy.estimatedProgressPrefix}:{' '}
+                  {Math.round(Math.min(Math.max(apiRide.progress, 0), 100))}%
                 </Text>
               )}
 
@@ -488,7 +621,7 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
                   onPress={handleCancelSimulated}
                   activeOpacity={0.85}
                 >
-                  <Text style={styles.cancelButtonText}>Simular cancelación</Text>
+                  <Text style={styles.cancelButtonText}>{copy.cancelSimulation}</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -508,7 +641,6 @@ const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
     width: '100%',
-    backgroundColor: colors.background,
   },
   fullscreenMapWrapper: {
     ...StyleSheet.absoluteFillObject,

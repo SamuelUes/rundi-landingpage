@@ -3,26 +3,63 @@ import { View, Text, StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
 import { typography } from '../theme/typography';
+import { useThemeLanguage } from '../theme/ThemeContext';
+import type { LanguageCode } from '../theme/ThemeContext';
 
 const year = new Date().getFullYear();
 
+type FooterCopy = {
+  main: string;
+  disclaimer: string;
+  techLine: string;
+  copy: string;
+};
+
+const footerCopy: Record<LanguageCode, FooterCopy> = {
+  es: {
+    main: 'Movilidad segura y conductor designado para Nicaragua.',
+    disclaimer: 'Servicio disponible únicamente en Nicaragua.',
+    techLine: 'Construido con React Native, Firebase, Supabase, Bancos Locales y más.',
+    copy: 'Todos los derechos reservados.',
+  },
+  en: {
+    main: 'Safe mobility and designated driver service for Nicaragua.',
+    disclaimer: 'Service available only in Nicaragua.',
+    techLine: 'Built with React Native, Firebase, Supabase, local banks and more.',
+    copy: 'All rights reserved.',
+  },
+  zh: {
+    main: '为尼加拉瓜提供安全出行与指定司机服务。',
+    disclaimer: '目前服务仅在尼加拉瓜提供。',
+    techLine: '基于 React Native、Firebase、Supabase、本地银行等技术构建。',
+    copy: '保留所有权利。',
+  },
+};
+
 const Footer: React.FC = () => {
+  const { colors: themeColors, language } = useThemeLanguage();
+  const copy = footerCopy[language];
   return (
-    <View style={styles.root}>
+    <View
+      style={[
+        styles.root,
+        { borderTopColor: themeColors.border, backgroundColor: themeColors.surface },
+      ]}
+    >
       <View style={styles.container}>
         <View style={styles.left}>
-          <Text style={styles.brand}>Rundi</Text>
-          <Text style={styles.text}>
-            Movilidad segura y conductor designado para Nicaragua.
+          <Text style={[styles.brand, { color: themeColors.gold }]}>Rundi</Text>
+          <Text style={[styles.text, { color: themeColors.textSecondary }]}>{copy.main}</Text>
+          <Text style={[styles.disclaimer, { color: themeColors.textSecondary }]}>
+            {copy.disclaimer}
           </Text>
-          <Text style={styles.disclaimer}>Servicio disponible únicamente en Nicaragua.</Text>
         </View>
 
         <View style={styles.right}>
-          <Text style={styles.techLine}>
-            Construido con React Native, Firebase, Supabase, Bancos Locales y más.
+          <Text style={[styles.techLine, { color: themeColors.textSecondary }]}>{copy.techLine}</Text>
+          <Text style={[styles.copy, { color: themeColors.textSecondary }]}>
+            © {year} Rundi. {copy.copy}
           </Text>
-          <Text style={styles.copy}>© {year} Rundi. Todos los derechos reservados.</Text>
         </View>
       </View>
     </View>

@@ -7,17 +7,18 @@ import AvailabilitySection from './components/AvailabilitySection';
 import TechStackSection from './components/TechStackSection';
 import Footer from './components/Footer';
 import HeaderNav from './components/HeaderNav';
-import { colors } from './theme/colors';
+import { useThemeLanguage } from './theme/ThemeContext';
 import { layout } from './theme/layout';
 
 const App = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
+  const { colors, theme } = useThemeLanguage();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} />
       <Animated.ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}
         bounces={false}
         scrollEventThrottle={16}
         onScroll={Animated.event(
@@ -40,11 +41,11 @@ const App = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    // background color se aplica vía contexto
   },
   scrollContent: {
     flexGrow: 1,
-    backgroundColor: colors.background,
+    // background color se aplica vía contexto
     paddingVertical: layout.sectionVerticalPadding,
   },
 });

@@ -4,6 +4,8 @@ import SectionHeader from './SectionHeader';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
 import { reactLogo, expoLogo, firebaseLogo, gcpLogo, supabaseLogo } from '../assets/techs';
+import { useThemeLanguage } from '../theme/ThemeContext';
+import type { LanguageCode } from '../theme/ThemeContext';
 
 type TechGroup = {
   title: string;
@@ -18,6 +20,26 @@ const groups: TechGroup[] = [
 ];
 
 const techItems: string[] = groups.flatMap((group) => group.items);
+
+type TechStackCopy = {
+  title: string;
+  subtitle: string;
+};
+
+const techCopy: Record<LanguageCode, TechStackCopy> = {
+  es: {
+    title: 'Tecnología Sólida, Experiencia Fluida',
+    subtitle: 'Una arquitectura moderna y segura para ofrecer la mejor experiencia.',
+  },
+  en: {
+    title: 'Solid Technology, Fluid Experience',
+    subtitle: 'A modern, secure architecture to deliver the best experience.',
+  },
+  zh: {
+    title: '坚实技术，流畅体验',
+    subtitle: '现代且安全的架构，为你提供最佳出行体验。',
+  },
+};
 
 const getLogoForItem = (item: string): any | null => {
   const name = item.toLowerCase();
@@ -97,14 +119,13 @@ const TechStackSection: React.FC<TechStackSectionProps> = ({ scrollY }) => {
         }
       : undefined;
 
+  const { language } = useThemeLanguage();
+  const copy = techCopy[language];
+
   return (
     <View style={styles.root}>
       <View style={styles.headerWrapper}>
-        <SectionHeader
-          title="Tecnología Solida, Experiencia Fluida"
-          subtitle="Una arquitectura moderna y segura para ofrecer la mejor experiencia."
-          align="center"
-        />
+        <SectionHeader title={copy.title} subtitle={copy.subtitle} align="center" />
       </View>
 
       <View style={styles.marqueeContainer}>
@@ -184,7 +205,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     borderColor: 'transparent',
     // franja gris translúcida detrás de los logos
-    backgroundColor: 'rgba(56, 56, 99, 0.29)',
+    backgroundColor: 'rgba(187, 184, 184, 0.29)',
   },
   marqueeTrack: {
     flexDirection: 'row',

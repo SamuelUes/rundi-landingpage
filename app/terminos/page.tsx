@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import TrackingPage from './Tracking_page';
+import TermsScreen from '../../components/TermsScreen';
 import { typography } from '../../theme/typography';
 import { useThemeLanguage } from '../../theme/ThemeContext';
 
-export default function Page() {
+export default function TermsPage() {
   const [ready, setReady] = useState(false);
   const { colors } = useThemeLanguage();
 
@@ -30,9 +30,14 @@ export default function Page() {
           justifyContent: 'center',
         }}
       >
-        <View style={styles.loadingCard}>
+        <View
+          style={[
+            styles.loadingCard,
+            { borderColor: colors.border, backgroundColor: colors.card },
+          ]}
+        >
           <ActivityIndicator size="large" color={colors.gold} />
-          <Text style={styles.loadingText}>Cargando Rundi…</Text>
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Cargando Rundi…</Text>
         </View>
       </div>
     );
@@ -40,7 +45,7 @@ export default function Page() {
 
   return (
     <div style={{ minHeight: '100vh', width: '100%', display: 'flex' }}>
-      <TrackingPage />
+      <TermsScreen />
     </div>
   );
 }
@@ -51,12 +56,10 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderRadius: 18,
     borderWidth: 1,
-    // colores se aplican usando contexto
     alignItems: 'center',
   },
   loadingText: {
     marginTop: 12,
     fontSize: typography.body,
-    // color se aplica usando contexto si es necesario
   },
 });

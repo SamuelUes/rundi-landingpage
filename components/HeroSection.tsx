@@ -4,8 +4,50 @@ import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
 import { typography } from '../theme/typography';
 import { logo } from '../assets/map_icons';
+import { useThemeLanguage } from '../theme/ThemeContext';
+import type { LanguageCode } from '../theme/ThemeContext';
 
 const heroRAsset = require('../assets/images/icons/icon_effect.png');
+
+type HeroCopy = {
+  title: string;
+  subtitle: string;
+  primaryBadge: string;
+  secondaryBadge: string;
+  primaryCta: string;
+  secondaryCta: string;
+  locationNote: string;
+};
+
+const heroCopy: Record<LanguageCode, HeroCopy> = {
+  es: {
+    title: 'Todo en un solo lugar, Todo siempre con Rundi!',
+    subtitle: 'Ya en Managua Nicaragua!!',
+    primaryBadge: 'Conductor designado',
+    secondaryBadge: 'Viajes multi-destino',
+    primaryCta: 'Descargar app',
+    secondaryCta: 'Ver cómo funciona',
+    locationNote: 'Disponible solo en Nicaragua.',
+  },
+  en: {
+    title: 'Everything in one place, always with Rundi!',
+    subtitle: 'Now available in Managua, Nicaragua!',
+    primaryBadge: 'Designated driver',
+    secondaryBadge: 'Multi-destination trips',
+    primaryCta: 'Download app',
+    secondaryCta: 'See how it works',
+    locationNote: 'Available only in Nicaragua.',
+  },
+  zh: {
+    title: '一切尽在 Rundi，一键安心出行！',
+    subtitle: '现已登陆尼加拉瓜马那瓜！',
+    primaryBadge: '指定司机',
+    secondaryBadge: '多目的地行程',
+    primaryCta: '下载应用',
+    secondaryCta: '了解如何运作',
+    locationNote: '目前服务仅在尼加拉瓜提供。',
+  },
+};
 
 const toImageSource = (asset: any): any => {
   if (!asset) return asset;
@@ -18,41 +60,43 @@ const toImageSource = (asset: any): any => {
 const HeroSection: React.FC = () => {
   const logoSource: any = toImageSource(logo as any);
   const heroRSource: any = toImageSource(heroRAsset as any);
+  const { colors: themeColors, language } = useThemeLanguage();
+  const copy = heroCopy[language];
   return (
     <View style={styles.root}>
       <View style={styles.container}>
         <View style={styles.left}>
           <View style={styles.logoRow}>
-            <Image source={logoSource} style={styles.logo as any} resizeMode="contain" />
+            {/*<Image source={logoSource} style={styles.logo as any} resizeMode="contain" />*/}
           </View>
 
-          <Text style={styles.title}>
-           Todo en un solo lugar, Todo siempre con Rundi!
-          </Text>
+          <Text style={[styles.title, { color: themeColors.text }]}>{copy.title}</Text>
 
-          <Text style={styles.subtitle}>
-            Ya en Managua Nicaragua!!
-          </Text>
+          <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>{copy.subtitle}</Text>
 
           <View style={styles.badgesRow}>
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>Conductor designado</Text>
+              <Text style={styles.badgeText}>{copy.primaryBadge}</Text>
             </View>
             <View style={styles.badgeOutline}>
-              <Text style={styles.badgeOutlineText}>Viajes multi-destino</Text>
+              <Text style={styles.badgeOutlineText}>{copy.secondaryBadge}</Text>
             </View>
           </View>
 
           <View style={styles.actionsRow}>
             <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85}>
-              <Text style={styles.primaryButtonText}>Descargar app</Text>
+              <Text style={styles.primaryButtonText}>{copy.primaryCta}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85}>
-              <Text style={styles.secondaryButtonText}>Ver cómo funciona</Text>
+              <Text style={[styles.secondaryButtonText, { color: themeColors.text }]}>
+                {copy.secondaryCta}
+              </Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.locationNote}>Disponible solo en Nicaragua.</Text>
+          <Text style={[styles.locationNote, { color: themeColors.textSecondary }]}>
+            {copy.locationNote}
+          </Text>
         </View>
 
         <View style={styles.right}>

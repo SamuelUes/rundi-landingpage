@@ -4,6 +4,7 @@ import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
 import { typography } from '../theme/typography';
 import HeaderNav from './HeaderNav';
+import { useThemeLanguage } from '../theme/ThemeContext';
 
 type FAQItem = {
   question: string;
@@ -72,10 +73,15 @@ const ContactScreen: React.FC = () => {
     Linking.openURL('mailto:soporte@rundiapp.com?subject=Ayuda Rundi');
   };
 
+  const { colors: themeColors } = useThemeLanguage();
+
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: themeColors.background }]}> 
       <HeaderNav />
-      <ScrollView contentContainerStyle={styles.scrollContent} bounces={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        bounces={false}
+      >
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>Centro de ayuda y contacto</Text>
