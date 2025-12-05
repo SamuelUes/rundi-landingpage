@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, useWindowDimensions } from 'react-native';
 import SectionHeader from './SectionHeader';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
@@ -7,7 +7,7 @@ import { typography } from '../theme/typography';
 import { useThemeLanguage } from '../theme/ThemeContext';
 import type { LanguageCode } from '../theme/ThemeContext';
 
-const coverageAsset = require('../assets/images/camapaña/ride_2.png');
+const coverageAsset = require('../assets/images/campaña2/safe_ride.png');
 
 type AvailabilityCopy = {
   headerTitle: string;
@@ -59,28 +59,36 @@ interface AvailabilitySectionProps {
 
 const AvailabilitySection: React.FC<AvailabilitySectionProps> = ({ scrollY }) => {
   const coverageSource: any = toImageSource(coverageAsset as any);
-  const { theme, language } = useThemeLanguage();
+  const { theme, language, colors: themeColors } = useThemeLanguage();
+  const { width } = useWindowDimensions();
   const isDark = theme === 'dark';
+  const isNarrow = width < 900;
   const copy = availabilityCopy[language];
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: themeColors.background }]}>
       <SectionHeader
         title={copy.headerTitle}
         subtitle={copy.headerSubtitle}
         align="center"
       />
 
-      <View style={[styles.band, isDark && styles.bandDark]}>
-        <View style={[styles.card, isDark && styles.cardDark]}>
-          <View style={styles.cardContentRow}>
-            <View style={styles.textColumn}>
-              <Text style={styles.tag}>{copy.tag}</Text>
-              <Text style={styles.title}>{copy.cardTitle}</Text>
-              <Text style={styles.text}>{copy.body}</Text>
-              <Text style={styles.cities}>{copy.cities}</Text>
+      <View style={[styles.band, isDark && styles.bandDark, { backgroundColor: themeColors.background }]}>
+        <View
+          style={[
+            styles.card,
+            isDark && styles.cardDark,
+            { borderColor: themeColors.border, backgroundColor: themeColors.surface },
+          ]}
+        >
+          <View style={[styles.cardContentRow, isNarrow && styles.cardContentColumn]}>
+            <View style={[styles.textColumn, isNarrow && styles.textColumnNarrow]}>
+              <Text style={[styles.tag, { color: themeColors.goldLight }]}>{copy.tag}</Text>
+              <Text style={[styles.title, { color: themeColors.text }]}>{copy.cardTitle}</Text>
+              <Text style={[styles.text, { color: themeColors.textSecondary }]}>{copy.body}</Text>
+              <Text style={[styles.cities, { color: themeColors.textSecondary }]}>{copy.cities}</Text>
             </View>
-            <View style={styles.imageColumn}>
-              <View style={styles.imageFrame}>
+            <View style={[styles.imageColumn, isNarrow && styles.imageColumnNarrow]}>
+              <View style={[styles.imageFrame, { backgroundColor: themeColors.card }]}>
                 <Image
                   source={coverageSource}
                   style={styles.coverageImage as any}
@@ -99,6 +107,7 @@ const styles = StyleSheet.create({
   root: {
     paddingHorizontal: layout.horizontalPadding,
     marginBottom: layout.sectionVerticalPadding,
+    backgroundColor: colors.background,
   },
   band: {
     marginTop: 8,
@@ -106,7 +115,7 @@ const styles = StyleSheet.create({
   },
   bandDark: {
     // banda ligeramente más clara que el fondo global para suavizar el contraste
-    backgroundColor: '#111827',
+    backgroundColor: colors.background,
   },
   card: {
     maxWidth: layout.contentMaxWidth,
@@ -132,26 +141,39 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
   },
+  cardContentColumn: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
   textColumn: {
     flex: 1,
     minWidth: 220,
     paddingRight: 12,
   },
+  textColumnNarrow: {
+    paddingRight: 0,
+  },
   imageColumn: {
     flex: 2,
-    minWidth: 320,
+    maxWidth: 300,
+    minWidth: 150,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 16,
   },
   imageFrame: {
     width: '100%',
-    height: '100%',
-    maxWidth: 320,
+    maxWidth: 300,
+    maxHeight: 260,
     aspectRatio: 1,
     borderRadius: 20,
     backgroundColor: colors.card,
     overflow: 'hidden',
+  },
+  imageColumnNarrow: {
+    minWidth: 0,
+    width: '100%',
+    marginTop: 20,
   },
   coverageImage: {
     width: '100%',

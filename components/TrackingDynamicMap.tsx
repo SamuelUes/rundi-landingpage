@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { GoogleMap, Marker, Polyline, useJsApiLoader } from '@react-google-maps/api';
 import { colors } from '../theme/colors';
 import type { PublicRideTrackingRide } from '../functions/publicRideTrackingClient';
 import { ensureVehicleIconUri, extractVehicleTypeFromInfo } from '../utils/vehicleIcons';
-import originMarkerPng from '../assets/icons/origin_marker/origin_marker_2x.png';
-import multipleLocationPng from '../assets/icons/multiplelocationmarker/multiplelocationmarker_2x.png';
-import finalDestinationPng from '../assets/icons/select-final-destination/selectfinaldestination_2x.png';
+import originMarkerPng from '../assets/icons/origin_marker/origin_marker.png';
+import multipleLocationPng from '../assets/icons/multiplelocationmarker/multiplelocationmarker.png';
+import finalDestinationPng from '../assets/icons/select-final-destination/selectfinaldestination.png';
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
@@ -89,12 +89,14 @@ const TrackingDynamicMap: React.FC<TrackingDynamicMapProps> = ({ ride }) => {
     vehicle: vehicleIconUrl,
   };
 
-  const { center, markers, path } = useMemo(() => {
+  const { center, markers, origin, extra, finalDest } = useMemo(() => {
     if (!ride) {
       return {
         center: DEFAULT_CENTER,
         markers: [] as { position: LatLng; type: MarkerKind }[],
-        path: [] as LatLng[],
+        origin: null as LatLng | null,
+        extra: null as LatLng | null,
+        finalDest: null as LatLng | null,
       };
     }
 
@@ -119,17 +121,76 @@ const TrackingDynamicMap: React.FC<TrackingDynamicMapProps> = ({ ride }) => {
     if (finalDest) markersList.push({ position: finalDest, type: 'final' });
     if (vehicle) markersList.push({ position: vehicle, type: 'vehicle' });
 
-    const pathPoints: LatLng[] = [];
-    if (origin) pathPoints.push(origin);
-    if (extra) pathPoints.push(extra);
-    if (finalDest) pathPoints.push(finalDest);
-
     return {
       center: centerPoint,
       markers: markersList,
-      path: pathPoints,
+      origin,
+      extra,
+      finalDest,
     };
   }, [ride]);
+
+  const [routePath, setRoutePath] = useState<LatLng[]>([]);
+
+  useEffect(() => {
+    // Ruta simple como único fallback (líneas rectas entre puntos conocidos)
+    const simplePath: LatLng[] = [];
+    if (origin) simplePath.push(origin);
+    if (extra) simplePath.push(extra);
+    if (finalDest) simplePath.push(finalDest);
+
+    // Si faltan origen o destino final, solo mostramos la ruta simple (si existe)
+    if (!origin || !finalDest) {
+      setRoutePath(simplePath);
+      return;
+    }
+
+    // Si el mapa aún no está cargado o estamos en SSR, usamos también la ruta simple
+    if (!isLoaded || typeof window === 'undefined') {
+      setRoutePath(simplePath);
+      return;
+    }
+
+    const g = (window as any).google;
+    if (!g?.maps || !g.maps.DirectionsService) {
+      setRoutePath(simplePath);
+      return;
+    }
+
+    let cancelled = false;
+    const directionsService = new g.maps.DirectionsService();
+
+    const request: any = {
+      origin,
+      destination: finalDest,
+      travelMode: g.maps.TravelMode.DRIVING,
+    };
+
+    if (extra) {
+      request.waypoints = [{ location: extra, stopover: true }];
+    }
+
+    directionsService.route(request, (result: any, status: any) => {
+      if (cancelled) return;
+
+      if (status === 'OK' && result?.routes?.[0]?.overview_path?.length) {
+        const overviewPath = result.routes[0].overview_path;
+        const decoded: LatLng[] = overviewPath.map((p: any) => ({
+          lat: p.lat(),
+          lng: p.lng(),
+        }));
+        // Sobrescribimos siempre con la ruta de Directions para que solo exista una
+        setRoutePath(decoded);
+      } else {
+        // Si Directions falla, usamos solo la ruta simple
+        setRoutePath(simplePath);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [origin, extra, finalDest, isLoaded]);
 
   if (!hasApiKey) {
     return <View style={styles.fallback} />;
@@ -153,15 +214,19 @@ const TrackingDynamicMap: React.FC<TrackingDynamicMapProps> = ({ ride }) => {
       center={center}
       zoom={14}
       options={{
-        disableDefaultUI: true,
-        zoomControl: false,
+        disableDefaultUI: false,
+        zoomControl: true,
+        streetViewControl: false,
+        mapTypeControl: false,
+        fullscreenControl: false,
         styles: [],
         backgroundColor: '#050608',
+        gestureHandling: 'greedy',
       }}
     >
-      {path.length >= 2 && (
+      {routePath.length >= 2 && (
         <Polyline
-          path={path}
+          path={routePath}
           options={{
             strokeColor: '#FDD835',
             strokeOpacity: 1,

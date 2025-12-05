@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, useWindowDimensions, Alert} from 'react-native';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import SectionHeader from './SectionHeader';
 import { colors } from '../theme/colors';
@@ -28,6 +28,10 @@ function mapRemoteStatusToTripStatus(status: string | null | undefined): TripSta
   const normalized = status.toLowerCase();
 
   switch (normalized) {
+    // estados iniciales: todavía no hay viaje en ruta, pero lo tratamos como "en camino"
+    case 'requested':
+    case 'driver_offered':
+    case 'accepted':
     case 'driver_on_way':
     case 'driver_on_route':
       return 'driver_on_way';
@@ -38,6 +42,8 @@ function mapRemoteStatusToTripStatus(status: string | null | undefined): TripSta
     case 'pending_payment':
     case 'pending_rating':
       return 'pending_payment';
+    // rating_completed se considera viaje completado
+    case 'rating_completed':
     case 'completed':
       return 'completed';
     case 'canceled':
@@ -186,6 +192,7 @@ type TrackingCopy = {
   finalFallback: string;
   errorFetch: string;
   errorUnexpected: string;
+  canceledMessage: string;
 };
 
 const statusLabelsByLanguage: Record<LanguageCode, Record<TripStatus, string>> = {
@@ -242,6 +249,7 @@ const trackingCopy: Record<LanguageCode, TrackingCopy> = {
     finalFallback: 'Destino final',
     errorFetch: 'No se pudo obtener la información del viaje.',
     errorUnexpected: 'Error obteniendo la información del viaje.',
+    canceledMessage: 'Este viaje ha sido cancelado.',
   },
   en: {
     sectionTitle: 'Track your trip in real time',
@@ -269,6 +277,7 @@ const trackingCopy: Record<LanguageCode, TrackingCopy> = {
     finalFallback: 'Final destination',
     errorFetch: 'Could not get trip information.',
     errorUnexpected: 'Error fetching trip information.',
+    canceledMessage: 'This trip has been canceled.',
   },
   zh: {
     sectionTitle: '实时查看你的行程',
@@ -295,6 +304,7 @@ const trackingCopy: Record<LanguageCode, TrackingCopy> = {
     finalFallback: '终点',
     errorFetch: '无法获取行程信息。',
     errorUnexpected: '获取行程信息时出错。',
+    canceledMessage: '此行程已被取消。',
   },
 };
 
@@ -312,6 +322,9 @@ interface TripTrackingSectionProps {
 }
 
 const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) => {
+  const { width } = useWindowDimensions();
+  const isNarrow = width < 900;
+
   const [rideId, setRideId] = useState('');
   const [currentStatus, setCurrentStatus] = useState<TripStatus | null>(null);
   const [apiRide, setApiRide] = useState<PublicRideTrackingRide | null>(null);
@@ -402,6 +415,16 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
       ? (currentIndex + 1) / progressOrder.length
       : 0;
 
+  // Alertar cuando el viaje se complete o se cancele
+  useEffect(() => {
+    if (!currentStatus) return;
+
+    if (currentStatus === 'completed' || currentStatus === 'canceled') {
+      const message = statusLabels[currentStatus];
+      Alert.alert('Estado del viaje', message);
+    }
+  }, [currentStatus, statusLabels]);
+
   // Si estamos en la pantalla /tracking, leer rideId del querystring y cargar el viaje automáticamente
   useEffect(() => {
     if (pathname !== '/tracking') return;
@@ -439,9 +462,9 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
           <TrackingDynamicMap ride={apiRide} />
         </View>
 
-        <View style={styles.overlayGradient} />
+        <View style={styles.overlayGradient} pointerEvents="none" />
 
-        <View style={styles.overlayCardContainer}>
+        <View style={styles.overlayCardContainer} pointerEvents="box-none">
           <View style={styles.overlayCard}>
             <Text style={styles.overlayLabel}>{copy.inputLabel}</Text>
             <TextInput
@@ -473,78 +496,85 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
             </View>
 
             {error && <Text style={styles.errorText}>{error}</Text>}
-
-            <View style={styles.overlayStopsRow}>
-              <View style={styles.overlayStopItem}>
-                <Image
-                  source={originMarkerIcon}
-                  style={styles.overlayStopIcon as any}
-                  resizeMode="contain"
-                />
-                <Text style={styles.overlayStopLabel} numberOfLines={1}>
-                  {originLabel}
-                </Text>
+            {currentStatus === 'canceled' ? (
+              <View style={styles.canceledMessageBox}>
+                <Text style={styles.canceledMessage}>{copy.canceledMessage}</Text>
               </View>
-
-              <View style={styles.overlayStopItem}>
-                <Image
-                  source={extraDestinationIcon}
-                  style={styles.overlayStopIcon as any}
-                  resizeMode="contain"
-                />
-                <Text style={styles.overlayStopLabel} numberOfLines={1}>
-                  {extraLabel}
-                </Text>
-              </View>
-
-              <View style={styles.overlayStopItem}>
-                <Image
-                  source={finalDestinationIcon}
-                  style={styles.overlayStopIcon as any}
-                  resizeMode="contain"
-                />
-                <Text style={styles.overlayStopLabel} numberOfLines={1}>
-                  {finalLabel}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.routeInfoBox}>
-              <View style={styles.routeTimeRow}>
-                <Image source={percentIcon} style={styles.percentIcon} resizeMode="contain" />
-                <View style={styles.routeTimeTextContainer}>
-                  <Text style={styles.routeTimeMain}>
-                    {estimatedDurationMinutes != null && estimatedDistanceKm != null
-                      ? `${estimatedDurationMinutes} ${copy.timeUnit} (${estimatedDistanceKm.toFixed(1)} ${copy.distanceUnit})`
-                      : copy.routeProgressTitle}
-                  </Text>
-                  <Text style={styles.routeTimeSub}>
-                    {apiRide?.hasTracking ? copy.routeRealtime : copy.routeEstimated}
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.progressWrapper}>
-              <View style={styles.progressBar}>
-                <View style={[styles.progressFill, { width: `${progressFraction * 100}%` }]} />
-              </View>
-
-              <View style={styles.progressLabelsRow}>
-                {progressOrder.map((status) => {
-                  const isActive = currentStatus === status;
-
-                  return (
-                    <Text
-                      key={status}
-                      style={[styles.progressLabel, isActive && styles.progressLabelActive]}
-                    >
-                      {statusLabels[status]}
+            ) : (
+              <>
+                <View style={styles.overlayStopsRow}>
+                  <View style={styles.overlayStopItem}>
+                    <Image
+                      source={originMarkerIcon}
+                      style={styles.overlayStopIcon as any}
+                      resizeMode="contain"
+                    />
+                    <Text style={styles.overlayStopLabel} numberOfLines={1}>
+                      {originLabel}
                     </Text>
-                  );
-                })}
-              </View>
-            </View>
+                  </View>
+
+                  <View style={styles.overlayStopItem}>
+                    <Image
+                      source={extraDestinationIcon}
+                      style={styles.overlayStopIcon as any}
+                      resizeMode="contain"
+                    />
+                    <Text style={styles.overlayStopLabel} numberOfLines={1}>
+                      {extraLabel}
+                    </Text>
+                  </View>
+
+                  <View style={styles.overlayStopItem}>
+                    <Image
+                      source={finalDestinationIcon}
+                      style={styles.overlayStopIcon as any}
+                      resizeMode="contain"
+                    />
+                    <Text style={styles.overlayStopLabel} numberOfLines={1}>
+                      {finalLabel}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.routeInfoBox}>
+                  <View style={styles.routeTimeRow}>
+                    <Image source={percentIcon} style={styles.percentIcon} resizeMode="contain" />
+                    <View style={styles.routeTimeTextContainer}>
+                      <Text style={styles.routeTimeMain}>
+                        {estimatedDurationMinutes != null && estimatedDistanceKm != null
+                          ? `${estimatedDurationMinutes} ${copy.timeUnit} (${estimatedDistanceKm.toFixed(1)} ${copy.distanceUnit})`
+                          : copy.routeProgressTitle}
+                      </Text>
+                      <Text style={styles.routeTimeSub}>
+                        {apiRide?.hasTracking ? copy.routeRealtime : copy.routeEstimated}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                <View style={styles.progressWrapper}>
+                  <View style={styles.progressBar}>
+                    <View style={[styles.progressFill, { width: `${progressFraction * 100}%` }]} />
+                  </View>
+
+                  <View style={styles.progressLabelsRow}>
+                    {progressOrder.map((status) => {
+                      const isActive = currentStatus === status;
+
+                      return (
+                        <Text
+                          key={status}
+                          style={[styles.progressLabel, isActive && styles.progressLabelActive]}
+                        >
+                          {statusLabels[status]}
+                        </Text>
+                      );
+                    })}
+                  </View>
+                </View>
+              </>
+            )}
           </View>
         </View>
       </View>
@@ -552,15 +582,15 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
   }
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: themeColors.background }]}>
       <SectionHeader
         title={copy.sectionTitle}
         subtitle={copy.sectionSubtitle}
         align="center"
       />
 
-      <View style={styles.container}>
-        <View style={styles.left}>
+      <View style={[styles.container, isNarrow && styles.containerNarrow]}>
+        <View style={[styles.left, isNarrow && styles.leftNarrow]}>
           <Text style={[styles.label, { color: themeColors.textSecondary }]}>{copy.inputLabel}</Text>
           <TextInput
             value={rideId}
@@ -611,12 +641,14 @@ const TripTrackingSection: React.FC<TripTrackingSectionProps> = ({ scrollY }) =>
                 {currentStatus ? statusLabels[currentStatus as TripStatus] : ''}
               </Text>
 
-              {apiRide && typeof apiRide.progress === 'number' && (
-                <Text style={styles.progressText}>
-                  {copy.estimatedProgressPrefix}:{' '}
-                  {Math.round(Math.min(Math.max(apiRide.progress, 0), 100))}%
-                </Text>
-              )}
+              {currentStatus !== 'canceled' &&
+                apiRide &&
+                typeof apiRide.progress === 'number' && (
+                  <Text style={styles.progressText}>
+                    {copy.estimatedProgressPrefix}:{' '}
+                    {Math.round(Math.min(Math.max(apiRide.progress, 0), 100))}%
+                  </Text>
+                )}
 
               {currentStatus !== 'completed' && currentStatus !== 'canceled' && (
                 <TouchableOpacity
@@ -639,6 +671,7 @@ const styles = StyleSheet.create({
   root: {
     paddingHorizontal: layout.horizontalPadding,
     marginBottom: layout.sectionVerticalPadding,
+    backgroundColor: colors.background,
   },
   fullscreenRoot: {
     flex: 1,
@@ -662,9 +695,9 @@ const styles = StyleSheet.create({
     maxWidth: 420,
     minWidth: 280,
     borderRadius: 24,
-    backgroundColor: 'rgba(10,10,14,0.95)',
+    backgroundColor: 'rgba(10,10,14,0.96)',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: 'rgba(148,163,184,0.6)',
     padding: 18,
   },
   container: {
@@ -678,6 +711,13 @@ const styles = StyleSheet.create({
     minWidth: 280,
     paddingRight: 16,
     marginBottom: 24,
+  },
+  containerNarrow: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
+  leftNarrow: {
+    paddingRight: 0,
   },
   right: {
     flex: 1,
@@ -701,7 +741,7 @@ const styles = StyleSheet.create({
   },
   overlayLabel: {
     fontSize: 13,
-    color: colors.text,
+    color: '#F9FAFB',
     marginBottom: 6,
   },
   overlayInput: {
@@ -733,14 +773,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   overlaySecondaryButton: {
-    borderColor: colors.gold,
+    borderColor: colors.goldLight,
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 999,
   },
   overlaySecondaryButtonText: {
-    color: colors.text,
+    color: '#F9FAFB',
     fontWeight: '600',
     fontSize: 12,
   },
@@ -764,7 +804,7 @@ const styles = StyleSheet.create({
   overlayStopLabel: {
     flex: 1,
     fontSize: 11,
-    color: colors.textSecondary,
+    color: '#E5E7EB',
   },
   buttonsRow: {
     flexDirection: 'row',
@@ -807,6 +847,15 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     color: colors.accentRed,
     marginBottom: 10,
+  },
+  canceledMessageBox: {
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  canceledMessage: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.accentRed,
   },
   statusBox: {
     borderRadius: 10,
@@ -1001,12 +1050,12 @@ const styles = StyleSheet.create({
   routeTimeMain: {
     fontSize: 14,
     fontWeight: '700',
-    color: colors.text,
+    color: '#F9FAFB',
     marginBottom: 2,
   },
   routeTimeSub: {
     fontSize: 11,
-    color: colors.textSecondary,
+    color: '#E5E7EB',
   },
   progressWrapper: {
     marginTop: 4,
@@ -1028,7 +1077,7 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 10,
-    color: colors.textSecondary,
+    color: '#E5E7EB',
     marginRight: 10,
     marginBottom: 4,
   },

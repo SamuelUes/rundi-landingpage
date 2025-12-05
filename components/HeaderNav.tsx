@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
 import { usePathname, useRouter } from 'next/navigation';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
@@ -45,6 +45,9 @@ const toImageSource = (asset: any): any => {
 };
 
 const HeaderNav: React.FC = () => {
+  const { width } = useWindowDimensions();
+  const isNarrow = width < 768;
+
   const router = useRouter();
   const pathname = usePathname();
   const { theme, setTheme, language, setLanguage, colors: themeColors } = useThemeLanguage();
@@ -66,7 +69,7 @@ const HeaderNav: React.FC = () => {
         { backgroundColor: themeColors.background, borderBottomColor: themeColors.border },
       ]}
     >
-      <View style={styles.content}>
+      <View style={[styles.content, isNarrow && styles.contentNarrow]}>
         <TouchableOpacity
           style={styles.brandRow}
           activeOpacity={0.8}
@@ -75,59 +78,105 @@ const HeaderNav: React.FC = () => {
           <Image source={brandLogoSource} style={styles.brandLogo as any} resizeMode="contain" />
         </TouchableOpacity>
 
-        <View style={styles.rightRow}>
-          <View style={styles.linksRow}>
+        <View style={[styles.rightRow, isNarrow && styles.rightRowNarrow]}>
+          <View style={[styles.linksRow, isNarrow && styles.linksRowNarrow]}>
             <TouchableOpacity
-              style={[styles.linkButton, isActive('/tracking') && styles.linkButtonActive]}
+              style={[
+                styles.linkButton,
+                isActive('/tracking') && styles.linkButtonActive,
+                isNarrow && styles.linkButtonNarrow,
+              ]}
               activeOpacity={0.85}
               onPress={() => goTo('/tracking')}
             >
-              <Text style={[styles.linkText, isActive('/tracking') && styles.linkTextActive]}>
+              <Text
+                style={[
+                  styles.linkText,
+                  { color: themeColors.textSecondary },
+                  isActive('/tracking') && styles.linkTextActive,
+                  isActive('/tracking') && { color: themeColors.text },
+                ]}
+              >
                 {nav.tracking}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.linkButton, isActive('/galeria') && styles.linkButtonActive]}
+              style={[
+                styles.linkButton,
+                isActive('/galeria') && styles.linkButtonActive,
+                isNarrow && styles.linkButtonNarrow,
+              ]}
               activeOpacity={0.85}
               onPress={() => goTo('/galeria')}
             >
-              <Text style={[styles.linkText, isActive('/galeria') && styles.linkTextActive]}>
+              <Text
+                style={[
+                  styles.linkText,
+                  { color: themeColors.textSecondary },
+                  isActive('/galeria') && styles.linkTextActive,
+                  isActive('/galeria') && { color: themeColors.text },
+                ]}
+              >
                 {nav.gallery}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.linkButton, isActive('/contacto') && styles.linkButtonActive]}
+              style={[
+                styles.linkButton,
+                isActive('/contacto') && styles.linkButtonActive,
+                isNarrow && styles.linkButtonNarrow,
+              ]}
               activeOpacity={0.85}
               onPress={() => goTo('/contacto')}
             >
-              <Text style={[styles.linkText, isActive('/contacto') && styles.linkTextActive]}>
+              <Text
+                style={[
+                  styles.linkText,
+                  { color: themeColors.textSecondary },
+                  isActive('/contacto') && styles.linkTextActive,
+                  isActive('/contacto') && { color: themeColors.text },
+                ]}
+              >
                 {nav.contact}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.linkButton, isActive('/terminos') && styles.linkButtonActive]}
+              style={[
+                styles.linkButton,
+                isActive('/terminos') && styles.linkButtonActive,
+                isNarrow && styles.linkButtonNarrow,
+              ]}
               activeOpacity={0.85}
               onPress={() => goTo('/terminos')}
             >
-              <Text style={[styles.linkText, isActive('/terminos') && styles.linkTextActive]}>
+              <Text
+                style={[
+                  styles.linkText,
+                  { color: themeColors.textSecondary },
+                  isActive('/terminos') && styles.linkTextActive,
+                  isActive('/terminos') && { color: themeColors.text },
+                ]}
+              >
                 {nav.terms}
               </Text>
             </TouchableOpacity>
           </View>
 
-          <View style={styles.controlsRow}>
+          <View style={[styles.controlsRow, isNarrow && styles.controlsRowNarrow]}>
             <TouchableOpacity
               style={styles.themeToggle}
               activeOpacity={0.85}
               onPress={() => setTheme(theme === 'light' ? 'dark' : 'light')}
             >
-              <Text style={styles.controlText}>{theme === 'light' ? '🌙' : '☀️'}</Text>
+              <Text style={[styles.controlText, { color: themeColors.text }]}>
+                {theme === 'light' ? '🌙' : '☀️'}
+              </Text>
             </TouchableOpacity>
 
-            <View style={styles.languageRow}>
+            <View style={[styles.languageRow, isNarrow && styles.languageRowNarrow]}>
               {(
                 [
                   { code: 'es', label: 'ES' },
@@ -147,6 +196,7 @@ const HeaderNav: React.FC = () => {
                   <Text
                     style={[
                       styles.languageText,
+                      language !== item.code && { color: themeColors.textSecondary },
                       language === item.code && styles.languageTextActive,
                     ]}
                   >
@@ -164,6 +214,7 @@ const HeaderNav: React.FC = () => {
 
 const styles = StyleSheet.create({
   root: {
+    width: '100%',
     paddingHorizontal: layout.horizontalPadding,
     paddingVertical: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
@@ -257,6 +308,31 @@ const styles = StyleSheet.create({
   languageTextActive: {
     color: colors.text,
     fontWeight: '600',
+  },
+  contentNarrow: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+  rightRowNarrow: {
+    marginTop: 8,
+    width: '100%',
+    justifyContent: 'space-between',
+  },
+  linksRowNarrow: {
+    flexWrap: 'wrap',
+  },
+  linkButtonNarrow: {
+    paddingHorizontal: 10,
+    marginLeft: 0,
+    marginRight: 12,
+    marginBottom: 4,
+  },
+  controlsRowNarrow: {
+    marginLeft: 0,
+    marginTop: 8,
+  },
+  languageRowNarrow: {
+    marginTop: 4,
   },
 });
 

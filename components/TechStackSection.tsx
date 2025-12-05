@@ -119,11 +119,11 @@ const TechStackSection: React.FC<TechStackSectionProps> = ({ scrollY }) => {
         }
       : undefined;
 
-  const { language } = useThemeLanguage();
+  const { language, colors: themeColors } = useThemeLanguage();
   const copy = techCopy[language];
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: themeColors.background }]}>
       <View style={styles.headerWrapper}>
         <SectionHeader title={copy.title} subtitle={copy.subtitle} align="center" />
       </View>
@@ -188,6 +188,7 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 24,
     marginBottom: layout.sectionVerticalPadding,
+    backgroundColor: colors.background,
   },
   headerWrapper: {
     paddingHorizontal: layout.horizontalPadding,

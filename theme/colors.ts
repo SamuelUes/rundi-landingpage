@@ -14,7 +14,7 @@ export const lightColors = {
 } as const;
 
 export const darkColors = {
-  background: '#111827',
+  background: 'rgba(12, 16, 20, 1)',
   surface: '#111827',
   card: '#a2c9f0ff ',
   gold: '#D4AF37',

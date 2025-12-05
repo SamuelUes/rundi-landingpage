@@ -22,7 +22,6 @@ const styles = StyleSheet.create({
   centerWrapper: {
     flex: 1,
     alignSelf: 'stretch',
-    paddingVertical: layout.sectionVerticalPadding,
   },
 });
 

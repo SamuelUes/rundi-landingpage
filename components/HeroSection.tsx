@@ -7,7 +7,7 @@ import { logo } from '../assets/map_icons';
 import { useThemeLanguage } from '../theme/ThemeContext';
 import type { LanguageCode } from '../theme/ThemeContext';
 
-const heroRAsset = require('../assets/images/icons/icon_effect.png');
+const heroRAsset = require('../assets/images/campaña2/poster_1.png');
 
 type HeroCopy = {
   title: string;
@@ -63,7 +63,7 @@ const HeroSection: React.FC = () => {
   const { colors: themeColors, language } = useThemeLanguage();
   const copy = heroCopy[language];
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: themeColors.background }]}>
       <View style={styles.container}>
         <View style={styles.left}>
           <View style={styles.logoRow}>
@@ -113,6 +113,7 @@ const styles = StyleSheet.create({
   root: {
     paddingHorizontal: layout.horizontalPadding,
     marginBottom: layout.sectionVerticalPadding,
+    backgroundColor: colors.background,
   },
   container: {
     flexDirection: 'row',
@@ -228,8 +229,8 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   phoneMock: {
-    width: 250,
-    height: 250,
+    width: 400,
+    height: 400,
     borderRadius: 32,
     overflow: 'hidden',
    // backgroundColor: 'rgba(28, 55, 129, 0.04)',

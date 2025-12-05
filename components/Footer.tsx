@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
 import { typography } from '../theme/typography';
@@ -38,27 +38,27 @@ const footerCopy: Record<LanguageCode, FooterCopy> = {
 
 const Footer: React.FC = () => {
   const { colors: themeColors, language } = useThemeLanguage();
+  const { width } = useWindowDimensions();
+  const isNarrow = width < 768;
   const copy = footerCopy[language];
   return (
     <View
       style={[
         styles.root,
-        { borderTopColor: themeColors.border, backgroundColor: themeColors.surface },
+        { borderTopColor: themeColors.border, backgroundColor: themeColors.background },
       ]}
     >
-      <View style={styles.container}>
-        <View style={styles.left}>
+      <View style={[styles.container, isNarrow && styles.containerNarrow]}>
+        <View style={[styles.left, isNarrow && styles.leftNarrow]}>
           <Text style={[styles.brand, { color: themeColors.gold }]}>Rundi</Text>
           <Text style={[styles.text, { color: themeColors.textSecondary }]}>{copy.main}</Text>
-          <Text style={[styles.disclaimer, { color: themeColors.textSecondary }]}>
-            {copy.disclaimer}
-          </Text>
+          <Text style={[styles.disclaimer, { color: themeColors.textSecondary }]}>{copy.disclaimer}</Text>
         </View>
 
-        <View style={styles.right}>
+        <View style={[styles.right, isNarrow && styles.rightNarrow]}>
           <Text style={[styles.techLine, { color: themeColors.textSecondary }]}>{copy.techLine}</Text>
           <Text style={[styles.copy, { color: themeColors.textSecondary }]}>
-            © {year} Rundi. {copy.copy}
+            {year} Rundi. {copy.copy}
           </Text>
         </View>
       </View>
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 20,
     paddingHorizontal: layout.horizontalPadding,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   container: {
     flexDirection: 'row',
@@ -81,15 +81,24 @@ const styles = StyleSheet.create({
     maxWidth: layout.contentMaxWidth,
     alignSelf: 'center',
   },
+  containerNarrow: {
+    flexDirection: 'column',
+  },
   left: {
     flex: 1,
     minWidth: 240,
     marginBottom: 10,
     paddingRight: 16,
   },
+  leftNarrow: {
+    paddingRight: 0,
+  },
   right: {
     flex: 1,
     minWidth: 240,
+  },
+  rightNarrow: {
+    marginTop: 8,
   },
   brand: {
     fontSize: 16,

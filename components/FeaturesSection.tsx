@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable, useWindowDimensions } from 'react-native';
 import SectionHeader from './SectionHeader';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
@@ -18,37 +18,37 @@ type Feature = {
 const features: Feature[] = [
   {
     iconAsset: require('../assets/images/icons/utils/safe_shield.png'),
-    campaignAsset: require('../assets/images/camapaña/ride_1.png'),
+    campaignAsset: require('../assets/images/campaña2/ride_3.png'),
     title: 'Seguridad primero',
     description: 'Conductores verificados, documentos revisados y botón SOS integrado.',
   },
   {
     iconAsset: require('../assets/images/icons/utils/car_safed.png'),
-    campaignAsset: require('../assets/images/camapaña/designed_driver.png'),
+    campaignAsset: require('../assets/images/campaña2/designed_driver.png'),
     title: 'Conductor designado',
     description: 'Viaja con un conductor designado para volver seguro con tu vehiculo.',
   },
   {
     iconAsset: require('../assets/images/icons/utils/realtime.png'),
-    campaignAsset: require('../assets/images/camapaña/driver_self-confidence.png'),
+    campaignAsset: require('../assets/images/campaña2/realtime.png'),
     title: 'Tiempo real',
     description: 'Ubicación en vivo, estado del viaje y notificaciones push.',
   },
     {
     iconAsset: require('../assets/images/icons/utils/card_cash.png'),
-    campaignAsset: require('../assets/images/camapaña/safe_pay.png'),
+    campaignAsset: require('../assets/images/campaña2/safe_pay.png'),
     title: 'Pagos flexibles',
     description: 'Efectivo o tarjeta con integración a a bancos locales, pensado para Nicaragua.',
   },
   {
     iconAsset: require('../assets/images/icons/utils/map.png'),
-    //campaignAsset: require('../assets/images/camapaña/moto_ride_1.png'),
+    //campaignAsset: require('../assets/images/campaña/moto_ride_1.png'),
     title: 'Multi-destino inteligente',
     description: 'Define origen, destino extra y destino final en un solo flujo.',
   },
   {
     iconAsset: require('../assets/images/icons/utils/sms.png'),
-    //campaignAsset: require('../assets/images/camapaña/moto_ride_2.png'),
+    //campaignAsset: require('../assets/images/campaña/moto_ride_2.png'),
     title: 'Registro por SMS',
     description: 'Validación de teléfono con SMS para mayor seguridad desde el día uno.',
   },
@@ -181,6 +181,9 @@ interface FeaturesSectionProps {
 }
 
 const FeaturesSection: React.FC<FeaturesSectionProps> = ({ scrollY }) => {
+  const { width } = useWindowDimensions();
+  const isNarrow = width < 900;
+
   const HomePreviewSource: any = toImageSource(HomePreviewProto as any);
   const DriverPreviewSource: any = toImageSource(DriverPreviewPhot as any);
 
@@ -188,18 +191,18 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ scrollY }) => {
   const secondaryFeatures = features.slice(4);
 
   const [hoveredSlot, setHoveredSlot] = useState<'client' | 'driver' | null>(null);
-  const { theme, language } = useThemeLanguage();
+  const { theme, language, colors: themeColors } = useThemeLanguage();
   const isDark = theme === 'dark';
   const copy = featuresCopy[language];
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: themeColors.background }]}>
       <SectionHeader
         title={copy.headerTitle}
         subtitle={copy.headerSubtitle}
         align="center"
       />
-      <View style={[styles.band, isDark && styles.bandDark]}>
+      <View style={[styles.band, isDark && styles.bandDark, { backgroundColor: themeColors.background }]}>
         <View style={styles.row}>
           <View style={styles.featuresColumn}>
             <View style={styles.grid}>
@@ -208,10 +211,19 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ scrollY }) => {
                 return (
                   <View
                     key={feature.title}
-                    style={[styles.card, index % 2 === 0 && styles.cardLeft, isDark && styles.cardDark]}
+                    style={[
+                      styles.card,
+                      index % 2 === 0 && styles.cardLeft,
+                      isDark && styles.cardDark,
+                      isNarrow && styles.cardNarrow,
+                      {
+                        backgroundColor: themeColors.card,
+                        borderColor: themeColors.border,
+                      },
+                    ]}
                   >
-                    <View style={styles.cardInnerRow}>
-                      <View style={styles.cardTextColumn}>
+                    <View style={[styles.cardInnerRow, isNarrow && styles.cardInnerRowNarrow]}>
+                      <View style={[styles.cardTextColumn, isNarrow && styles.cardTextColumnNarrow]}>
                         <View style={styles.cardHeaderRow}>
                           <View /*style={styles.iconWrapper}*/>
                             {feature.iconAsset ? (
@@ -225,12 +237,21 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ scrollY }) => {
                             )}
                           </View>
                         </View>
-                        <Text style={styles.cardTitle}>{text.title}</Text>
-                        <Text style={styles.cardDescription}>{text.description}</Text>
+                        <Text style={[styles.cardTitle, { color: themeColors.text }]}>{text.title}</Text>
+                        <Text
+                          style={[styles.cardDescription, { color: themeColors.textSecondary }]}
+                        >
+                          {text.description}
+                        </Text>
                       </View>
                       {feature.campaignAsset && (
-                        <View style={styles.cardImageColumn}>
-                          <View style={styles.cardImageFrame}>
+                        <View
+                          style={[
+                            styles.cardImageColumn,
+                            isNarrow && styles.cardImageColumnNarrow,
+                          ]}
+                        >
+                          <View style={[styles.cardImageFrame, { backgroundColor: themeColors.card }]}>
                             <Image
                               source={toImageSource(feature.campaignAsset) as any}
                               style={styles.cardCampaignImage as any}
@@ -252,7 +273,17 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ scrollY }) => {
             {secondaryFeatures.map((feature, index) => {
               const text = copy.items[index + primaryFeatures.length];
               return (
-                <View key={feature.title} style={[styles.secondaryCard, isDark && styles.cardDark]}>
+                <View
+                  key={feature.title}
+                  style={[
+                    styles.secondaryCard,
+                    isDark && styles.cardDark,
+                    {
+                      backgroundColor: themeColors.card,
+                      borderColor: themeColors.border,
+                    },
+                  ]}
+                >
                   <View style={styles.cardInnerRow}>
                     <View style={styles.cardTextColumn}>
                       <View style={styles.cardHeaderRow}>
@@ -268,8 +299,12 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ scrollY }) => {
                           )}
                         </View>
                       </View>
-                      <Text style={styles.cardTitle}>{text.title}</Text>
-                      <Text style={styles.cardDescription}>{text.description}</Text>
+                      <Text style={[styles.cardTitle, { color: themeColors.text }]}>{text.title}</Text>
+                      <Text
+                        style={[styles.cardDescription, { color: themeColors.textSecondary }]}
+                      >
+                        {text.description}
+                      </Text>
                     </View>
                   </View>
                 </View>
@@ -278,9 +313,22 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ scrollY }) => {
           </View>
 
           <View style={styles.PrototypeColumn}>
-            <View style={[styles.PrototypeCard, isDark && styles.cardDark]}>
-              <Text style={styles.PrototypeTitle}>{copy.prototypeTitle}</Text>
-              <Text style={styles.PrototypeSubtitle}>{copy.prototypeSubtitle}</Text>
+            <View
+              style={[
+                styles.PrototypeCard,
+                isDark && styles.cardDark,
+                {
+                  backgroundColor: themeColors.card,
+                  borderColor: themeColors.border,
+                },
+              ]}
+            >
+              <Text style={[styles.PrototypeTitle, { color: themeColors.text }]}>
+                {copy.prototypeTitle}
+              </Text>
+              <Text style={[styles.PrototypeSubtitle, { color: themeColors.textSecondary }]}>
+                {copy.prototypeSubtitle}
+              </Text>
               <View style={styles.ImageWrapper}>
                 <Pressable
                   onHoverIn={() => setHoveredSlot('client')}
@@ -321,6 +369,7 @@ const styles = StyleSheet.create({
   root: {
     paddingHorizontal: layout.horizontalPadding,
     marginBottom: layout.sectionVerticalPadding,
+    backgroundColor: colors.background,
   },
   row: {
     flexDirection: 'row',
@@ -333,8 +382,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   bandDark: {
-    // banda un poco más clara que el fondo global para reducir el contraste con las cards blancas
-    backgroundColor: '#111827',
+    backgroundColor: colors.background,
   },
   featuresColumn: {
     flex: 3,
@@ -365,10 +413,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  cardNarrow: {
+    minHeight: 0,
+    marginHorizontal: 10,
+    paddingVertical: 18,
+  },
   cardDark: {
     // Suaviza la transición entre fondo oscuro y card clara
-    borderColor: 'rgba(148,163,184,0.35)',
-    backgroundColor: '#f9fafb',
+    borderColor: colors.border,
+    backgroundColor: colors.background,
     shadowColor: '#020617',
     shadowOpacity: 0.32,
     shadowRadius: 40,
@@ -407,15 +460,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  cardInnerRowNarrow: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
   cardTextColumn: {
     flex: 1,
     paddingRight: 8,
   },
+  cardTextColumnNarrow: {
+    marginBottom: 8,
+  },
   cardImageColumn: {
     width: 180,
-    height: 180,
     alignItems: 'flex-end',
     justifyContent: 'center',
+  },
+  cardImageColumnNarrow: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
   },
   cardImageFrame: {
     width: '100%',
@@ -438,7 +503,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   featureIconImage: {
-    width: 412,
+    width: 42,
     height: 42,
   },
   icon: {

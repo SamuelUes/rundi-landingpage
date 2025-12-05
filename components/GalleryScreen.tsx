@@ -5,6 +5,7 @@ import { layout } from '../theme/layout';
 import { typography } from '../theme/typography';
 import HeaderNav from './HeaderNav';
 import { useThemeLanguage } from '../theme/ThemeContext';
+import type { LanguageCode } from '../theme/ThemeContext';
 
 const clientHomeProto = require('../assets/images/prototipe_phones/clienthome_prototipe.png');
 const driverHomeProto = require('../assets/images/prototipe_phones/driverhome_prototipe.png');
@@ -19,6 +20,53 @@ const toImageSource = (asset: any): any => {
   return maybe;
 };
 
+type GalleryCopy = {
+  title: string;
+  subtitle: string;
+  mainTitle: string;
+  mainSubtitle: string;
+  secondary1Title: string;
+  secondary1Text: string;
+  secondary2Title: string;
+  secondary2Text: string;
+};
+
+const galleryCopy: Record<LanguageCode, GalleryCopy> = {
+  es: {
+    title: 'Galería',
+    subtitle:
+      'Una vista rápida de cómo se ve Rundi en acción: seguimiento en tiempo real, viajes multi-destino y una interfaz pensada para la realidad de Nicaragua.',
+    mainTitle: 'Diseñado para ti.',
+    mainSubtitle: 'Diseñado para usuarios y para conductores',
+    secondary1Title: 'Seguimiento en tiempo real',
+    secondary1Text: 'Vista de mapa en vivo para tus viajes.',
+    secondary2Title: 'Viaje en curso',
+    secondary2Text: 'Detalle visual de un viaje activo con puntos de ruta.',
+  },
+  en: {
+    title: 'Gallery',
+    subtitle:
+      'A quick look at how Rundi works in action: real-time tracking, multi-destination trips and an interface designed for the reality of Nicaragua.',
+    mainTitle: 'Designed for you.',
+    mainSubtitle: 'Built for riders and drivers',
+    secondary1Title: 'Real-time tracking',
+    secondary1Text: 'Live map view for your trips.',
+    secondary2Title: 'Trip in progress',
+    secondary2Text: 'Visual detail of an active trip with route points.',
+  },
+  zh: {
+    title: '图库',
+    subtitle:
+      '快速浏览 Rundi 的实际体验：实时行程追踪、多目的地行程，以及为尼加拉瓜场景设计的界面。',
+    mainTitle: '为你而生。',
+    mainSubtitle: '同时为乘客与司机优化的体验',
+    secondary1Title: '实时行程追踪',
+    secondary1Text: '为你的行程提供实时地图视图。',
+    secondary2Title: '进行中的行程',
+    secondary2Text: '展示带有路线节点的行程详情。',
+  },
+};
+
 const GalleryScreen: React.FC = () => {
   const clientHomeSource: any = toImageSource(clientHomeProto as any);
   const availableSource: any = toImageSource(availableProto as any);
@@ -28,7 +76,8 @@ const GalleryScreen: React.FC = () => {
   const [hoveredTop, setHoveredTop] = useState<'client' | 'driver' | null>(null);
   const [hoveredBottom, setHoveredBottom] = useState<'available' | 'active' | null>(null);
 
-  const { colors: themeColors } = useThemeLanguage();
+  const { colors: themeColors, language } = useThemeLanguage();
+  const copy = galleryCopy[language];
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: themeColors.background }]}> 
@@ -38,15 +87,17 @@ const GalleryScreen: React.FC = () => {
         bounces={false}
       >
         <View style={styles.container}>
-          <Text style={styles.title}>Galería</Text>
-          <Text style={styles.subtitle}>
-            Una vista rápida de cómo se ve Rundi en acción: seguimiento en tiempo real, viajes multi-destino y una
-            interfaz pensada para la realidad de Nicaragua.
-          </Text>
+          <Text style={[styles.title, { color: themeColors.text }]}>{copy.title}</Text>
+          <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>{copy.subtitle}</Text>
 
-          <View style={styles.mainCard}>
-            <Text style={styles.mainTitle}>Diseñado para ti.</Text>
-            <Text style={styles.mainSubtitle}>Diseñado para usuarios y para conductores</Text>
+          <View
+            style={[
+              styles.mainCard,
+              { backgroundColor: themeColors.card, borderColor: themeColors.border },
+            ]}
+          >
+            <Text style={[styles.mainTitle, { color: themeColors.text }]}>{copy.mainTitle}</Text>
+            <Text style={[styles.mainSubtitle, { color: themeColors.textSecondary }]}>{copy.mainSubtitle}</Text>
 
             <View style={styles.prototypesRow}>
               <Pressable
@@ -85,12 +136,16 @@ const GalleryScreen: React.FC = () => {
               onHoverOut={() => {
                 setHoveredBottom((prev) => (prev === 'available' ? null : prev));
               }}
-              style={[styles.secondaryCard, hoveredBottom === 'available' && styles.secondaryCardExpanded]}
+              style={[
+                styles.secondaryCard,
+                hoveredBottom === 'available' && styles.secondaryCardExpanded,
+                { backgroundColor: themeColors.card, borderColor: themeColors.border },
+              ]}
             >
               <Image source={availableSource} style={styles.secondaryImage as any} resizeMode="contain" />
               <View style={styles.secondaryOverlay}>
-                <Text style={styles.secondaryTitle}>Seguimiento en tiempo real</Text>
-                <Text style={styles.secondaryText}>Vista de mapa en vivo para tus viajes.</Text>
+                <Text style={[styles.secondaryTitle, { color: themeColors.text }]}>{copy.secondary1Title}</Text>
+                <Text style={[styles.secondaryText, { color: themeColors.textSecondary }]}>{copy.secondary1Text}</Text>
               </View>
             </Pressable>
 
@@ -99,12 +154,16 @@ const GalleryScreen: React.FC = () => {
               onHoverOut={() => {
                 setHoveredBottom((prev) => (prev === 'active' ? null : prev));
               }}
-              style={[styles.secondaryCard, hoveredBottom === 'active' && styles.secondaryCardExpanded]}
+              style={[
+                styles.secondaryCard,
+                hoveredBottom === 'active' && styles.secondaryCardExpanded,
+                { backgroundColor: themeColors.card, borderColor: themeColors.border },
+              ]}
             >
               <Image source={activeRideSource} style={styles.secondaryImage as any} resizeMode="contain" />
               <View style={styles.secondaryOverlay}>
-                <Text style={styles.secondaryTitle}>Viaje en curso</Text>
-                <Text style={styles.secondaryText}>Detalle visual de un viaje activo con puntos de ruta.</Text>
+                <Text style={[styles.secondaryTitle, { color: themeColors.text }]}>{copy.secondary2Title}</Text>
+                <Text style={[styles.secondaryText, { color: themeColors.textSecondary }]}>{copy.secondary2Text}</Text>
               </View>
             </Pressable>
           </View>
