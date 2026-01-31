@@ -4,7 +4,7 @@ import React, { useMemo, useEffect, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { GoogleMap, Marker, Polyline, useJsApiLoader } from '@react-google-maps/api';
 import { colors } from '../theme/colors';
-import type { PublicRideTrackingRide } from '../../functions/publicRideTrackingClient';
+import type { PublicRideTrackingRide } from '../functions/publicRideTrackingClient';
 import { ensureVehicleIconUri, extractVehicleTypeFromInfo } from '../utils/vehicleIcons';
 import originMarkerPng from '../assets/icons/origin_marker/origin_marker.png';
 import multipleLocationPng from '../assets/icons/multiplelocationmarker/multiplelocationmarker.png';
