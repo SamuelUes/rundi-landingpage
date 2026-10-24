@@ -39,7 +39,7 @@ export default function Services() {
             <div className="split">
               <div className="b-a-copy">
                 <div className="b-a-top">
-                  <span className="flag">{c.flag}</span>
+                  <span className="hl hl-gold" style={{ fontSize: '1.5rem' }}>{c.flag}</span>
                   <span className="idx">RND—01</span>
                 </div>
                 <h3>{c.fH}</h3>
