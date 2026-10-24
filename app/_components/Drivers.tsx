@@ -1,12 +1,13 @@
 'use client';
 
 import { Check } from 'lucide-react';
+import Image from 'next/image';
 import { Hl, Reveal } from './Reveal';
 import { Magnet } from './Magnet';
 import { useThemeLanguage } from '../../theme/ThemeContext';
 import { landingCopy } from './landingCopy';
 
-const PROTOS = '/assets/images-old/prototipe_phones';
+const OPT = '/assets/images/opt';
 
 export default function Drivers() {
   const { language } = useThemeLanguage();
@@ -37,7 +38,7 @@ export default function Drivers() {
                   <Check size={12} strokeWidth={3} />
                 </span>
                 <div>
-                  <b>{p.b}</b>
+                  <span className="b">{p.b}</span>
                   <span>{p.s}</span>
                 </div>
               </li>
@@ -56,10 +57,10 @@ export default function Drivers() {
             <div className="et">{c.chip}</div>
           </div>
           <div className="phone phone-1">
-            <img src={`${PROTOS}/driverhome_prototipe.png`} alt={c.alt1} />
+            <Image src={`${OPT}/driverhome.webp`} alt={c.alt1} width={540} height={440} loading="lazy" />
           </div>
           <div className="phone phone-2">
-            <img src={`${PROTOS}/available_prototipe.png`} alt={c.alt2} />
+            <Image src={`${OPT}/available.webp`} alt={c.alt2} width={540} height={440} loading="lazy" />
           </div>
           <span className="phone-label pl-1">{c.pl1}</span>
           <span className="phone-label pl-2">{c.pl2}</span>

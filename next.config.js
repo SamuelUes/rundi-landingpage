@@ -11,6 +11,57 @@ const functionsOrigin = (
 
 const nextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
+  compress: true,
+  images: {
+    // Sirve AVIF/WebP escalado por tamaño real de renderizado
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 2592000, // 30 días
+    deviceSizes: [640, 750, 828, 1080, 1200, 1600, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+  },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000',
+          },
+          {
+            // Preload de las caras de Satoshi usadas en el H1 (700 normal + itálica)
+            key: 'Link',
+            value:
+              '</fonts/satoshi/satoshi-700.woff2>; rel=preload; as=font; type="font/woff2"; crossorigin="anonymous", ' +
+              '</fonts/satoshi/satoshi-700i.woff2>; rel=preload; as=font; type="font/woff2"; crossorigin="anonymous"',
+          },
+        ],
+      },
+      {
+        // Imágenes de marketing en /public/assets: cacheo largo del navegador
+        source: '/assets/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' },
+        ],
+      },
+      {
+        // Fuentes self-hosted: inmutables (el contenido nunca cambia)
+        source: '/fonts/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

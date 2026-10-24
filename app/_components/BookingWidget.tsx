@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import clsx from 'clsx';
 import { Loader2, LocateFixed, X } from 'lucide-react';
 import { useJsApiLoader } from '@react-google-maps/api';
@@ -21,19 +22,25 @@ const VEHICLES = [
   {
     key: 'car',
     fare: 'C$ 95 – 130',
-    img: '/assets/images/icons/Convertible_Car_Sedan/Convertible_Car_Sedan.png',
+    img: '/assets/images/opt/ic-car.webp',
+    w: 96,
+    h: 180,
     v: false,
   },
   {
     key: 'moto',
     fare: 'C$ 55 – 80',
-    img: '/assets/images/icons/moto/moto_icon.png',
+    img: '/assets/images/opt/ic-moto.webp',
+    w: 128,
+    h: 160,
     v: false,
   },
   {
     key: 'designado',
     fare: 'C$ 150 – 200',
-    img: '/assets/images/icons/utils/car_safed.png',
+    img: '/assets/images/opt/ic-car-safed.webp',
+    w: 128,
+    h: 128,
     v: true,
   },
 ];
@@ -286,18 +293,20 @@ export default function BookingWidget() {
     addon?: React.ReactNode,
   ) => (
     <label className="rin">
-      <img
+      <Image
         src={
           key === 'o'
-            ? '/assets/images/icons/origin_marker/origin_marker.png'
+            ? '/assets/images/opt/ic-origin.webp'
             : key === 'e'
-              ? '/assets/images/icons/select-extra-destination/selectextradestination.png'
-              : '/assets/images/icons/select-final-destination/selectfinaldestination.png'
+              ? '/assets/images/opt/ic-extra.webp'
+              : '/assets/images/opt/ic-final.webp'
         }
         alt=""
+        width={key === 'o' ? 96 : 96}
+        height={key === 'o' ? 96 : 171}
       />
       <span className={clsx('rin-t', dim && 'dim')}>
-        <b>{label}</b>
+        <span className="b">{label}</span>
         <input
           ref={ref}
           type="text"
@@ -326,7 +335,7 @@ export default function BookingWidget() {
       <div className="book-top">
         <span className="book-title">{c.title}</span>
         <span className="book-now">
-          <img src="/assets/images/icons/requests_pin/requests_pin2x.png" alt="" />
+          <Image src="/assets/images/opt/ic-requests.webp" alt="" width={96} height={171} />
           {c.now}
         </span>
       </div>
@@ -378,9 +387,9 @@ export default function BookingWidget() {
             type="button"
             onClick={() => pickVehicle(v.key)}
           >
-            <img src={v.img} alt="" />
+            <Image src={v.img} alt="" width={v.w} height={v.h} />
             <span>
-              <b>{c.vehLabels[v.key as 'car' | 'moto' | 'designado']}</b>
+              <span className="b">{c.vehLabels[v.key as 'car' | 'moto' | 'designado']}</span>
               <i>{c.vehSubs[v.key as 'car' | 'moto' | 'designado']}</i>
             </span>
           </button>
@@ -397,9 +406,9 @@ export default function BookingWidget() {
       </button>
       {phase === 'done' && result && (
         <div className="book-meta">
-          <b>
+          <span className="b">
             {result.km.toFixed(1)} {c.km} · {Math.round(result.min)} {c.min}
-          </b>
+          </span>
           <span>{result.live ? `${c.approx} ` : c.approx}</span>
         </div>
       )}

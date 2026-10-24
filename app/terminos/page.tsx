@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import LegalPage from '../_components/LegalPage';
 
 export const metadata: Metadata = {
-  title: 'Términos — Rundi',
-  description: 'Términos y condiciones de uso de Rundi.',
+  title: 'Términos de uso',
+  description: 'Términos y condiciones de uso de la plataforma Rundi en Nicaragua.',
+  alternates: { canonical: '/terminos' },
 };
 
 export default function TerminosPage() {

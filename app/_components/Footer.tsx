@@ -1,7 +1,10 @@
 'use client';
 
+import Image from 'next/image';
+import Link from 'next/link';
 import { useThemeLanguage } from '../../theme/ThemeContext';
 import { landingCopy } from './landingCopy';
+import ShareLinks from './ShareLinks';
 
 export default function Footer() {
   const { language } = useThemeLanguage();
@@ -12,15 +15,16 @@ export default function Footer() {
       <div className="wrap">
         <div className="foot-grid">
           <div className="foot-brand">
-            <a className="brand" href="#top">
-              <img src="/assets/images/rundi_mark.png" alt="Rundi" />
+            <Link className="brand" href="/" aria-label="Rundi — inicio">
+              <Image src="/assets/images/opt/rundi-mark.webp" alt="Rundi" width={320} height={320} />
               <span className="brand-name">Rundi</span>
-            </a>
+            </Link>
             <p>{c.tagline}</p>
+            <ShareLinks />
           </div>
           {c.cols.map((col: any) => (
             <div className="foot-col" key={col.h}>
-              <h5>{col.h}</h5>
+              <span className="foot-h">{col.h}</span>
               {col.links.map((l: any) => (
                 <a key={l.t} href={l.href}>
                   {l.t}

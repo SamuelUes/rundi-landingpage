@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { ArrowRight, Maximize2, Minimize2, Phone, Star, XCircle } from 'lucide-react';
 import PageShell from '../_components/PageShell';
@@ -381,11 +382,11 @@ function TrackingInner() {
 
   const points = ride
     ? [
-        { icon: '/assets/images/icons/origin_marker/origin_marker.png', l: c.origin, v: locationLabel(ride.origin, c.origin) },
+        { icon: '/assets/images/opt/ic-origin.webp', l: c.origin, v: locationLabel(ride.origin, c.origin) },
         ...(ride.extraDestination
-          ? [{ icon: '/assets/images/icons/select-extra-destination/selectextradestination.png', l: c.extra, v: locationLabel(ride.extraDestination, c.extra) }]
+          ? [{ icon: '/assets/images/opt/ic-extra.webp', l: c.extra, v: locationLabel(ride.extraDestination, c.extra) }]
           : []),
-        { icon: '/assets/images/icons/select-final-destination/selectfinaldestination.png', l: c.final, v: locationLabel(ride.finalDestination || ride.destination, c.final) },
+        { icon: '/assets/images/opt/ic-final.webp', l: c.final, v: locationLabel(ride.finalDestination || ride.destination, c.final) },
       ]
     : [];
 
@@ -465,9 +466,9 @@ function TrackingInner() {
           </div>
           {ride && originLL && (
             <div className="tk-chip">
-              <img src="/assets/images/icons/origin_marker/origin_marker.png" alt="" />
+              <Image src="/assets/images/opt/ic-origin.webp" alt="" width={96} height={96} />
               <div className="tk-chip-t">
-                <b>{locationLabel(ride.origin, c.origin)}</b>
+                <span className="b">{locationLabel(ride.origin, c.origin)}</span>
                 <span>{fmtLL(originLL)}</span>
               </div>
             </div>
@@ -492,17 +493,19 @@ function TrackingInner() {
             {status && (
               <div className="tk-status">
                 <span className={`t-dot ${dotClass}`} />
-                <b>{labels[status]}</b>
+                <span className="b">{labels[status]}</span>
               </div>
             )}
             {finalLL && (
               <div className="tk-chip tk-dest">
-                <img
-                  src="/assets/images/icons/select-final-destination/selectfinaldestination.png"
+                <Image
+                  src="/assets/images/opt/ic-final.webp"
                   alt=""
+                  width={96}
+                  height={171}
                 />
                 <div className="tk-chip-t">
-                  <b>{locationLabel(ride.finalDestination || ride.destination, c.final)}</b>
+                  <span className="b">{locationLabel(ride.finalDestination || ride.destination, c.final)}</span>
                   <span>{fmtLL(finalLL)}</span>
                 </div>
               </div>
@@ -510,11 +513,11 @@ function TrackingInner() {
             <div className="tk-sheet">
               <div className="tk-driver">
                 <div className="tk-ava">
-                  {drv?.photo ? <img src={drv.photo} alt="" /> : <span>{initials}</span>}
+                  {drv?.photo ? <img src={drv.photo} alt="" width={56} height={56} /> : <span>{initials}</span>}
                   {live && <i className="tk-live" />}
                 </div>
                 <div className="tk-dinfo">
-                  <b>{drv?.name ? `${c.pilot}: ${drv.name}` : c.yourPilot}</b>
+                  <span className="b">{drv?.name ? `${c.pilot}: ${drv.name}` : c.yourPilot}</span>
                   {drv?.rating != null && (
                     <div className="tk-stars">
                       {[1, 2, 3, 4, 5].map((i) => (
@@ -524,12 +527,12 @@ function TrackingInner() {
                           fill={i <= Math.round(drv.rating!) ? 'currentColor' : 'none'}
                         />
                       ))}
-                      <b>{drv.rating.toFixed(1)}</b>
+                      <span className="b">{drv.rating.toFixed(1)}</span>
                     </div>
                   )}
                   {(vehLabel || drv?.plate) && (
                     <div className="tk-veh">
-                      {vehIcon && <img src={vehIcon} alt="" />}
+                      {vehIcon && <img src={vehIcon} alt="" width={28} height={28} />}
                       <span>
                         {[vehLabel, drv?.plate && `${c.plate}: ${drv.plate}`]
                           .filter(Boolean)
@@ -541,7 +544,7 @@ function TrackingInner() {
               </div>
               <div className="tk-eta">
                 <div className="tk-eta-top">
-                  <b>{etaTitle}</b>
+                  <span className="b">{etaTitle}</span>
                   {price != null && <em>~C${price}</em>}
                 </div>
                 <span className="tk-eta-sub">{subline}</span>
@@ -575,7 +578,7 @@ function TrackingInner() {
           <div className="t-points">
             {points.map((p, i) => (
               <div className="t-point" key={i}>
-                <img src={p.icon} alt="" />
+                <Image src={p.icon} alt="" width={96} height={96} />
                 <span className="tl">{p.l}</span>
                 <span className="tv">{p.v}</span>
               </div>
@@ -584,12 +587,12 @@ function TrackingInner() {
           <div className="t-meta">
             {distanceKm && (
               <span className="t-chip">
-                <b>{distanceKm}</b> {c.km}
+                <span className="b">{distanceKm}</span> {c.km}
               </span>
             )}
             {durationMin && (
               <span className="t-chip">
-                <b>{durationMin}</b> {c.min}
+                <span className="b">{durationMin}</span> {c.min}
               </span>
             )}
             <span className="t-chip">{hasVehicle ? c.realtime : c.estimated}</span>

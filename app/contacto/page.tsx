@@ -138,12 +138,18 @@ export default function ContactPage() {
           const Icon = ICONS[r.icon];
           return (
             <Reveal key={r.label} delay={i}>
-              <a className={`c-row${r.violet ? ' v' : ''}`} href={href(r)}>
+              <a
+                className={`c-row${r.violet ? ' v' : ''}`}
+                href={href(r)}
+                {...(/^https?:/.test(href(r))
+                  ? { target: '_blank', rel: 'noopener noreferrer' }
+                  : {})}
+              >
                 <span className="qi">
                   <Icon />
                 </span>
                 <span className="cl">
-                  <b>{r.label}</b>
+                  <span className="b">{r.label}</span>
                   <i>{r.sub}</i>
                 </span>
                 <span className="cv">{r.value}</span>
@@ -203,7 +209,7 @@ export default function ContactPage() {
       <Reveal>
         <div className="cta-strip">
           <div>
-            <b>{c.strip.b}</b>
+            <span className="b">{c.strip.b}</span>
             <span>{c.strip.s}</span>
           </div>
           <a href="mailto:empresas@rundi.app">

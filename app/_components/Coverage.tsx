@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Reveal } from './Reveal';
 import { useThemeLanguage } from '../../theme/ThemeContext';
 import { landingCopy } from './landingCopy';
@@ -60,25 +61,29 @@ export default function Coverage() {
                   y="-24"
                   width="28"
                   height="48"
-                  href="/assets/images/icons/Convertible_Car_Sedan/Convertible_Car_Sedan.png"
+                  href="/assets/images/opt/ic-car.webp"
                 />
               </g>
               <animateMotion dur="9s" repeatCount="indefinite" rotate="auto" path={ROUTE} />
             </g>
           </svg>
           <div className="pin" style={{ left: '24%', top: '75%' }}>
-            <img
+            <Image
               className="pimg round"
-              src="/assets/images/icons/origin_marker/origin_marker.png"
+              src="/assets/images/opt/ic-origin.webp"
               alt=""
+              width={96}
+              height={96}
             />
             <span className="p-tag">{c.pinO}</span>
           </div>
           <div className="pin tear" style={{ left: '79%', top: '20%' }}>
-            <img
+            <Image
               className="pimg tear"
-              src="/assets/images/icons/select-final-destination/selectfinaldestination.png"
+              src="/assets/images/opt/ic-final.webp"
               alt=""
+              width={96}
+              height={171}
             />
             <span className="p-tag">{c.pinD}</span>
           </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useThemeLanguage } from '../../theme/ThemeContext';
 import { landingCopy } from './landingCopy';
 
@@ -14,11 +15,22 @@ export default function Marquee() {
         i % 2 === 0 ? (
           <div className="mq-item" key={`${item}-${ariaHidden}`}>
             <em>{item}</em>
-            <img src="/assets/images/rundi_mark.png" alt="" />
+            <Image
+              src="/assets/images/opt/rundi-mark.webp"
+              alt={item}
+              width={20}
+              height={20}
+            />
           </div>
         ) : (
           <div className="mq-item" key={`${item}-${ariaHidden}`}>
-            {item} <img src="/assets/images/rundi_mark.png" alt="" />
+            {item}{' '}
+            <Image
+              src="/assets/images/opt/rundi-mark.webp"
+              alt={item}
+              width={20}
+              height={20}
+            />
           </div>
         ),
       )}

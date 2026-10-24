@@ -1,11 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import { Hl, Reveal } from './Reveal';
 import { useThemeLanguage } from '../../theme/ThemeContext';
 import { landingCopy } from './landingCopy';
 
-const IC = '/assets/images/icons';
-const CAMP = '/assets/images/campaña2';
+const OPT = '/assets/images/opt';
 
 export default function Services() {
   const { language } = useThemeLanguage();
@@ -35,7 +35,14 @@ export default function Services() {
         <div className="bento">
           {/* flagship */}
           <Reveal className="bcard b-a">
-            <img className="bicon" src={`${IC}/utils/car_safed.png`} alt="" />
+            <Image
+              className="bicon"
+              src={`${OPT}/ic-car-safed.webp`}
+              alt=""
+              width={128}
+              height={128}
+              sizes="64px"
+            />
             <div className="split">
               <div className="b-a-copy">
                 <div className="b-a-top">
@@ -45,11 +52,11 @@ export default function Services() {
                 <h3>{c.fH}</h3>
                 <p>
                   {c.fP1}
-                  <b>{c.fPB}</b>
+                  <span className="b">{c.fPB}</span>
                   {c.fP2}
                 </p>
                 <div className="des-toggle">
-                  <img src={`${IC}/Convertible_Car_Sedan/Convertible_Car_Sedan.png`} alt="" />
+                  <Image src={`${OPT}/ic-car.webp`} alt="" width={96} height={180} />
                   {c.fToggle}
                   <span className="dtg">
                     <i></i>
@@ -66,7 +73,14 @@ export default function Services() {
               </div>
               <div className="b-a-media">
                 <figure className="b-a-shot">
-                  <img src={`${CAMP}/dessignated-home.png`} alt={c.fAlt} />
+                  <Image
+                    src={`${OPT}/dessignated-home.webp`}
+                    alt={c.fAlt}
+                    width={400}
+                    height={570}
+                    sizes="(max-width: 768px) 90vw, 100%"
+                    loading="lazy"
+                  />
                   <figcaption>{c.fCap}</figcaption>
                 </figure>
               </div>
@@ -74,17 +88,38 @@ export default function Services() {
           </Reveal>
 
           <Reveal className="bcard b-b" delay={1}>
-            <img className="bicon" src={`${IC}/utils/safe_shield.png`} alt="" />
+            <Image
+              className="bicon"
+              src={`${OPT}/ic-shield.webp`}
+              alt=""
+              width={128}
+              height={128}
+              sizes="64px"
+            />
             <span className="idx">RND—02</span>
             <h3>{c.cards[0].h}</h3>
             <p>{c.cards[0].p}</p>
             <figure className="artframe">
-              <img src={`${CAMP}/safe_ride.png`} alt={c.cards[0].alt} />
+              <Image
+                src={`${OPT}/safe-ride.webp`}
+                alt={c.cards[0].alt}
+                width={700}
+                height={607}
+                sizes="(max-width: 768px) 90vw, 40vw"
+                loading="lazy"
+              />
             </figure>
           </Reveal>
 
           <Reveal className="bcard b-c" delay={2}>
-            <img className="bicon" src={`${IC}/utils/card_cash.png`} alt="" />
+            <Image
+              className="bicon"
+              src={`${OPT}/ic-card-cash.webp`}
+              alt=""
+              width={128}
+              height={104}
+              sizes="64px"
+            />
             <div>
               <span className="idx">RND—03</span>
               <h3>{c.cards[1].h}</h3>
@@ -98,32 +133,74 @@ export default function Services() {
           </Reveal>
 
           <Reveal className="bcard b-d">
-            <img className="bicon" src={`${IC}/utils/realtime.png`} alt="" />
+            <Image
+              className="bicon"
+              src={`${OPT}/ic-realtime.webp`}
+              alt=""
+              width={128}
+              height={128}
+              sizes="64px"
+            />
             <span className="idx">RND—04</span>
             <h3>{c.cards[2].h}</h3>
             <p>{c.cards[2].p}</p>
             <figure className="artframe">
-              <img src={`${CAMP}/realtime.png`} alt={c.cards[2].alt} />
+              <Image
+                src={`${OPT}/realtime.webp`}
+                alt={c.cards[2].alt}
+                width={700}
+                height={754}
+                sizes="(max-width: 768px) 90vw, 40vw"
+                loading="lazy"
+              />
             </figure>
           </Reveal>
 
           <Reveal className="bcard b-e" delay={1}>
-            <img className="bicon" src={`${IC}/utils/map.png`} alt="" />
+            <Image
+              className="bicon"
+              src={`${OPT}/ic-map.webp`}
+              alt=""
+              width={128}
+              height={128}
+              sizes="64px"
+            />
             <span className="idx">RND—05</span>
             <h3>{c.cards[3].h}</h3>
             <p>{c.cards[3].p}</p>
             <figure className="artframe">
-              <img src={`${CAMP}/moto_ride.png`} alt={c.cards[3].alt} />
+              <Image
+                src={`${OPT}/moto-ride.webp`}
+                alt={c.cards[3].alt}
+                width={760}
+                height={613}
+                sizes="(max-width: 768px) 90vw, 40vw"
+                loading="lazy"
+              />
             </figure>
           </Reveal>
 
           <Reveal className="bcard b-f" delay={2}>
-            <img className="bicon" src={`${IC}/utils/sms.png`} alt="" />
+            <Image
+              className="bicon"
+              src={`${OPT}/ic-sms.webp`}
+              alt=""
+              width={128}
+              height={98}
+              sizes="64px"
+            />
             <span className="idx">RND—06</span>
             <h3>{c.cards[4].h}</h3>
             <p>{c.cards[4].p}</p>
             <figure className="artframe">
-              <img src={`${CAMP}/safe_confidence.png`} alt={c.cards[4].alt} />
+              <Image
+                src={`${OPT}/safe-confidence.webp`}
+                alt={c.cards[4].alt}
+                width={760}
+                height={680}
+                sizes="(max-width: 768px) 90vw, 40vw"
+                loading="lazy"
+              />
             </figure>
           </Reveal>
         </div>

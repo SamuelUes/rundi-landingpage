@@ -29,9 +29,9 @@ export const landingCopy: Record<LanguageCode, any> = {
         { href: '/terminos', b: 'Términos', s: 'Términos del servicio.' },
       ],
       side: [
-        { href: '/servicios', b: 'Conductor designado', s: 'Volvé a casa con tu propio carro, manejado por un profesional.' },
-        { href: '/conducir', b: 'Ganá conduciendo', s: 'Tu horario, tus viajes, pagos semanales.' },
-        { href: '/cobertura', b: 'Managua en vivo', s: 'Disponible ahora — más ciudades en camino.' },
+        { href: '/#servicios', b: 'Conductor designado', s: 'Volvé a casa con tu propio carro, manejado por un profesional.' },
+        { href: '/#conducir', b: 'Ganá conduciendo', s: 'Tu horario, tus viajes, pagos semanales.' },
+        { href: '/#cobertura', b: 'Managua en vivo', s: 'Disponible ahora — más ciudades en camino.' },
       ],
     },
     hero: {
@@ -171,8 +171,8 @@ export const landingCopy: Record<LanguageCode, any> = {
     footer: {
       tagline: 'Movilidad nicaragüense con estándar premium. Hecho en Managua, para Nicaragua.',
       cols: [
-        { h: 'Producto', links: [{ t: 'Servicios', href: '/#servicios' }, { t: 'Cómo funciona', href: '#como' }, { t: 'La app', href: '#app' }, { t: 'Cobertura', href: '#cobertura' }] },
-        { h: 'Compañía', links: [{ t: 'Conductores', href: '/#conducir' }, { t: 'Contacto', href: '/contacto' }, { t: 'Prensa', href: '#' }] },
+        { h: 'Producto', links: [{ t: 'Servicios', href: '/#servicios' }, { t: 'Cómo funciona', href: '/#como' }, { t: 'La app', href: '/#app' }, { t: 'Cobertura', href: '/#cobertura' }] },
+        { h: 'Compañía', links: [{ t: 'Conductores', href: '/#conducir' }, { t: 'Contacto', href: '/contacto' }, { t: 'Prensa', href: '/contacto' }, { t: 'Galería', href: '/galeria' }] },
         { h: 'Legal', links: [{ t: 'Privacidad', href: '/privacidad' }, { t: 'Términos', href: '/terminos' }] },
       ],
       base: '© 2026 Rundi · Managua, Nicaragua',
@@ -346,8 +346,8 @@ export const landingCopy: Record<LanguageCode, any> = {
     footer: {
       tagline: 'Nicaraguan mobility with a premium standard. Made in Managua, for Nicaragua.',
       cols: [
-        { h: 'Product', links: [{ t: 'Services', href: '/#servicios' }, { t: 'How it works', href: '#como' }, { t: 'The app', href: '#app' }, { t: 'Coverage', href: '#cobertura' }] },
-        { h: 'Company', links: [{ t: 'Drivers', href: '/#conducir' }, { t: 'Contact', href: '/contacto' }, { t: 'Press', href: '#' }] },
+        { h: 'Product', links: [{ t: 'Services', href: '/#servicios' }, { t: 'How it works', href: '/#como' }, { t: 'The app', href: '/#app' }, { t: 'Coverage', href: '/#cobertura' }] },
+        { h: 'Company', links: [{ t: 'Drivers', href: '/#conducir' }, { t: 'Contact', href: '/contacto' }, { t: 'Press', href: '/contacto' }, { t: 'Gallery', href: '/galeria' }] },
         { h: 'Legal', links: [{ t: 'Privacy', href: '/privacidad' }, { t: 'Terms', href: '/terminos' }] },
       ],
       base: '© 2026 Rundi · Managua, Nicaragua',
@@ -379,9 +379,9 @@ export const landingCopy: Record<LanguageCode, any> = {
         { href: '/terminos', b: '条款', s: '服务条款。' },
       ],
       side: [
-        { href: '#servicios', b: '指定司机', s: '专业司机开你自己的车送你回家。' },
-        { href: '#conducir', b: '开车赚钱', s: '你的时间、你的订单、每周结算。' },
-        { href: '#cobertura', b: '马那瓜实时', s: '现已上线 — 更多城市即将开放。' },
+        { href: '/#servicios', b: '指定司机', s: '专业司机开你自己的车送你回家。' },
+        { href: '/#conducir', b: '开车赚钱', s: '你的时间、你的订单、每周结算。' },
+        { href: '/#cobertura', b: '马那瓜实时', s: '现已上线 — 更多城市即将开放。' },
       ],
     },
     hero: {
@@ -521,8 +521,8 @@ export const landingCopy: Record<LanguageCode, any> = {
     footer: {
       tagline: '具有高端标准的尼加拉瓜出行平台。生于马那瓜，服务尼加拉瓜。',
       cols: [
-        { h: '产品', links: [{ t: '服务', href: '#servicios' }, { t: '使用方式', href: '#como' }, { t: '应用', href: '#app' }, { t: '覆盖范围', href: '#cobertura' }] },
-        { h: '公司', links: [{ t: '司机', href: '#conducir' }, { t: '联系', href: '/contacto' }, { t: '媒体', href: '#' }] },
+        { h: '产品', links: [{ t: '服务', href: '/#servicios' }, { t: '使用方式', href: '/#como' }, { t: '应用', href: '/#app' }, { t: '覆盖范围', href: '/#cobertura' }] },
+        { h: '公司', links: [{ t: '司机', href: '/#conducir' }, { t: '联系', href: '/contacto' }, { t: '媒体', href: '/contacto' }, { t: '图库', href: '/galeria' }] },
         { h: '法律', links: [{ t: '隐私', href: '/privacidad' }, { t: '条款', href: '/terminos' }] },
       ],
       base: '© 2026 Rundi · 尼加拉瓜马那瓜',

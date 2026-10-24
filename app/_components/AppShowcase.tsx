@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Hl, Reveal } from './Reveal';
 import { useThemeLanguage } from '../../theme/ThemeContext';
 import { landingCopy } from './landingCopy';
@@ -13,7 +14,14 @@ export default function AppShowcase() {
       <div className="wrap showcase-inner">
         <Reveal className="outside-shot">
           <figure className="photo-plate">
-            <img src="/assets/images/campaña2/outside.jpeg" alt={c.alt} />
+            <Image
+              src="/assets/images/opt/outside.webp"
+              alt={c.alt}
+              width={670}
+              height={440}
+              sizes="(max-width: 768px) 90vw, 55vw"
+              loading="lazy"
+            />
             <figcaption className="shot-cap">{c.cap}</figcaption>
           </figure>
         </Reveal>
@@ -37,7 +45,7 @@ export default function AppShowcase() {
               <li key={f.n}>
                 <span className="n">{f.n}</span>
                 <div>
-                  <b>{f.b}</b>
+                  <span className="b">{f.b}</span>
                   <span>{f.s}</span>
                 </div>
               </li>

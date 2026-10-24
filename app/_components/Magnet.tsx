@@ -11,11 +11,18 @@ export function Magnet({
   children,
   className,
   href = '#',
+  target,
+  rel,
+  ariaLabel,
 }: {
   children: ReactNode;
   className?: string;
   href?: string;
+  target?: string;
+  rel?: string;
+  ariaLabel?: string;
 }) {
+  const external = /^https?:\/\//.test(href);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const sx = useSpring(x, { stiffness: 220, damping: 16 });
@@ -38,6 +45,9 @@ export function Magnet({
       style={{ x: sx, y: sy }}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
+      target={target ?? (external ? '_blank' : undefined)}
+      rel={rel ?? (external ? 'noopener noreferrer' : undefined)}
+      aria-label={ariaLabel}
     >
       {children}
     </motion.a>

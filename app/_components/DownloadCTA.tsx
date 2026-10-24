@@ -1,9 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import { Reveal } from './Reveal';
 import { Magnet } from './Magnet';
 import { useThemeLanguage } from '../../theme/ThemeContext';
 import { landingCopy } from './landingCopy';
+import { STORE } from '../_lib/site';
 
 const APPLE = (
   <svg viewBox="0 0 24 24" fill="currentColor">
@@ -24,7 +26,14 @@ export default function DownloadCTA() {
     <section className="sec-pad" id="descargar" style={{ paddingTop: 0 }}>
       <div className="wrap">
         <Reveal className="cta-panel">
-          <img className="ghost" src="/assets/images/rundi_mark.png" alt="" aria-hidden="true" />
+          <Image
+            className="ghost"
+            src="/assets/images/opt/rundi-mark.webp"
+            alt=""
+            aria-hidden="true"
+            width={320}
+            height={320}
+          />
           <div>
             <div className="folio">
               <span className="num">06</span> {c.folio}
@@ -37,14 +46,22 @@ export default function DownloadCTA() {
             </h2>
             <p>{c.p}</p>
             <div className="store-row">
-              <Magnet className="store-btn" href="#">
+              <Magnet
+                className="store-btn"
+                href={STORE.ios}
+                ariaLabel={`${c.sm1} App Store`}
+              >
                 {APPLE}
                 <span>
                   <span className="sm">{c.sm1}</span>
                   <span className="lg">App Store</span>
                 </span>
               </Magnet>
-              <Magnet className="store-btn" href="#">
+              <Magnet
+                className="store-btn"
+                href={STORE.android}
+                ariaLabel={`${c.sm2} Google Play`}
+              >
                 {PLAY}
                 <span>
                   <span className="sm">{c.sm2}</span>
@@ -56,16 +73,18 @@ export default function DownloadCTA() {
           <div className="cta-card">
             <div className="qr-row">
               <div className="qr">
-                <img src="/assets/images/rundi_icon.png" alt="Rundi" />
+                <Image src="/assets/images/opt/rundi-icon.webp" alt="Rundi" width={256} height={205} />
               </div>
               <div>
-                <h4>{c.qrH}</h4>
+                <h3>{c.qrH}</h3>
                 <p>{c.qrP}</p>
               </div>
             </div>
             <div className="alt">
               {c.altPre}
-              <a href="#">rundi.app/get</a>
+              <a href={STORE.get} target="_blank" rel="noopener noreferrer">
+                rundi.app/get
+              </a>
               {c.altPost}
             </div>
           </div>

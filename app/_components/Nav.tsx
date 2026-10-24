@@ -1,6 +1,7 @@
 'use client';
 
 import { Globe, Moon, Sun } from 'lucide-react';
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { useThemeLanguage, type LanguageCode } from '../../theme/ThemeContext';
 import { landingCopy } from './landingCopy';
@@ -43,8 +44,14 @@ export default function Nav() {
   return (
     <header className={`nav${open ? ' menu-open' : ''}`} ref={navRef}>
       <div className="wrap nav-inner">
-        <a className="brand" href="/">
-          <img src="/assets/images/splash-icon.png" alt="Rundi" />
+        <a className="brand" href="/" aria-label="Rundi — inicio">
+          <Image
+            src="/assets/images/opt/rundi-logo.webp"
+            alt="Rundi"
+            width={384}
+            height={328}
+            priority
+          />
         </a>
         <div className="nav-actions">
           <button
@@ -89,7 +96,14 @@ export default function Nav() {
       </div>
       <div className="menu-panel" id="menuPanel">
         <div className="menu-card">
-          <img className="menu-mark" src="/assets/images/rundi_mark.png" alt="" aria-hidden="true" />
+          <Image
+            className="menu-mark"
+            src="/assets/images/opt/rundi-mark.webp"
+            alt=""
+            aria-hidden="true"
+            width={320}
+            height={320}
+          />
           <div>
             <span className="menu-h">{c.navH}</span>
             <nav className="menu-main">
@@ -106,7 +120,7 @@ export default function Nav() {
             <span className="menu-h">{c.pagesH}</span>
             {c.pages.map((item: any) => (
               <a key={item.b} href={item.href} onClick={() => setOpen(false)}>
-                <b>{item.b}</b>
+                <span className="b">{item.b}</span>
                 <span>{item.s}</span>
               </a>
             ))}
@@ -116,7 +130,7 @@ export default function Nav() {
             <span className="menu-h">{c.whyH}</span>
             {c.side.map((item: any) => (
               <a key={item.b} href={item.href} onClick={() => setOpen(false)}>
-                <b>{item.b}</b>
+                <span className="b">{item.b}</span>
                 <span>{item.s}</span>
               </a>
             ))}

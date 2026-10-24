@@ -255,7 +255,7 @@ export default function LegalPage({ doc }: { doc: LegalDoc }) {
 
         <article>
           <div className="meta-strip">
-            <b>RND—LEGAL</b>
+            <span className="b">RND—LEGAL</span>
             <span className="sep" />
             <span>{u.version}</span>
             <span className="sep" />
@@ -276,10 +276,10 @@ export default function LegalPage({ doc }: { doc: LegalDoc }) {
             {c.sections.map((s: Section) => (
               <Reveal key={s.n}>
                 <section className={`doc-sec${doc === 'terms' ? ' v' : ''}`} id={`sec-${s.n}`}>
-                  <h3>
+                  <h2>
                     <span className="n">{s.n}</span>
                     {s.title}
-                  </h3>
+                  </h2>
                   <p>{s.body}</p>
                   {s.bullets && (
                     <ul>
@@ -295,7 +295,7 @@ export default function LegalPage({ doc }: { doc: LegalDoc }) {
 
           <Reveal>
             <div className="doc-note">
-              <b>Rundi</b> — {c.note}{' '}
+              <span className="b">Rundi</span> — {c.note}{' '}
               <Link href={otherHref}>{c.other} →</Link>
             </div>
           </Reveal>

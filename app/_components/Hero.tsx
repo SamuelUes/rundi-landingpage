@@ -1,6 +1,7 @@
 'use client';
 
 import { animate, motion, useInView, useMotionValue, useSpring } from 'framer-motion';
+import Image from 'next/image';
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import BookingWidget from './BookingWidget';
 import { Hl } from './Reveal';
@@ -66,7 +67,16 @@ export default function Hero() {
 
   return (
     <section className="hero" id="top" ref={heroRef} onMouseMove={onMove} onMouseLeave={onLeave}>
-      <motion.div className="hero-bg" style={{ x: sx, y: sy }} />
+      <motion.div className="hero-bg" style={{ x: sx, y: sy }}>
+        <Image
+          src="/assets/images/opt/hero.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          quality={85}
+        />
+      </motion.div>
       <div className="hero-scrim"></div>
       <div className="hero-bloom"></div>
       <div className="hero-bloom v"></div>
@@ -90,7 +100,7 @@ export default function Hero() {
           </h1>
           <motion.p className="hero-sub" {...line(0.32)}>
             {c.subPre}
-            <strong>{c.subStrong}</strong>
+            <span className="b">{c.subStrong}</span>
             {c.subPost}
           </motion.p>
           <motion.div {...line(0.4)}>

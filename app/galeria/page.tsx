@@ -1,12 +1,13 @@
 'use client';
 
+import Image from 'next/image';
 import PageShell from '../_components/PageShell';
 import { Reveal } from '../_components/Reveal';
 import { useThemeLanguage, type LanguageCode } from '../../theme/ThemeContext';
 
-const CAMP = '/assets/images/campaña2';
+const OPT = '/assets/images/opt';
 
-type Tile = { cls: string; src: string; art: boolean; title: string; text: string };
+type Tile = { cls: string; src: string; w: number; h: number; art: boolean; title: string; text: string };
 
 type GalleryCopy = {
   folio: string;
@@ -69,13 +70,13 @@ const copy: Record<LanguageCode, GalleryCopy> = {
 };
 
 const TILES: Omit<Tile, 'title' | 'text'>[] = [
-  { cls: 'g-1', src: `${CAMP}/Hero.jpeg`, art: false },
-  { cls: 'g-2', src: `${CAMP}/promo_1.png`, art: true },
-  { cls: 'g-3', src: `${CAMP}/promo_2.png`, art: true },
-  { cls: 'g-4', src: `${CAMP}/promo_3.png`, art: true },
-  { cls: 'g-5', src: `${CAMP}/outside.jpeg`, art: false },
-  { cls: 'g-6', src: `${CAMP}/promo_4.png`, art: true },
-  { cls: 'g-7', src: `${CAMP}/promo_5.png`, art: true },
+  { cls: 'g-1', src: `${OPT}/hero.webp`, w: 1600, h: 894, art: false },
+  { cls: 'g-2', src: `${OPT}/promo-1.webp`, w: 800, h: 813, art: true },
+  { cls: 'g-3', src: `${OPT}/promo-2.webp`, w: 800, h: 813, art: true },
+  { cls: 'g-4', src: `${OPT}/promo-3.webp`, w: 800, h: 663, art: true },
+  { cls: 'g-5', src: `${OPT}/outside.webp`, w: 1200, h: 670, art: false },
+  { cls: 'g-6', src: `${OPT}/promo-4.webp`, w: 800, h: 1100, art: true },
+  { cls: 'g-7', src: `${OPT}/promo-5.webp`, w: 800, h: 649, art: true },
 ];
 
 export default function GaleriaPage() {
@@ -94,7 +95,7 @@ export default function GaleriaPage() {
       lede={c.lede}
     >
       <div className="meta-strip">
-        <b>{c.strip[0]}</b>
+        <span className="b">{c.strip[0]}</span>
         <span className="sep" />
         <span>{c.strip[1]}</span>
         <span className="sep" />
@@ -103,12 +104,24 @@ export default function GaleriaPage() {
 
       <div className="gal-grid">
         {TILES.map((t, i) => (
-          <Reveal key={t.cls} className={`gtile ${t.cls}${t.art ? ' art' : ''}`} delay={i % 3}>
+          <Reveal
+            as="figure"
+            key={t.cls}
+            className={`gtile ${t.cls}${t.art ? ' art' : ''}`}
+            delay={i % 3}
+          >
             <span className="gidx">IMG—{String(i + 1).padStart(2, '0')}</span>
-            <img src={t.src} alt={c.tiles[i].title} />
+            <Image
+              src={t.src}
+              alt={`${c.tiles[i].title} — ${c.tiles[i].text}`}
+              width={t.w}
+              height={t.h}
+              sizes="(max-width: 768px) 90vw, 33vw"
+              loading="lazy"
+            />
             <figcaption>
               <span>
-                <b>{c.tiles[i].title}</b>
+                <span className="b">{c.tiles[i].title}</span>
                 <span>{c.tiles[i].text}</span>
               </span>
               <span className="gn">
