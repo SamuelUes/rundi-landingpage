@@ -14,6 +14,16 @@ export default function Nav() {
   const c = landingCopy[language].nav;
   const navRef = useRef<HTMLElement>(null);
 
+  // Bloquea el scroll del fondo mientras el menú está abierto
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   // Cierra con Escape o click fuera del header
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

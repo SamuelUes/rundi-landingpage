@@ -906,9 +906,25 @@ body, body *{ transition:background-color .45s ease, border-color .45s ease, box
   .foot-grid{ grid-template-columns:1fr 1fr; }
 }
 @media (max-width:640px){
-  .menu-card{ grid-template-columns:1fr; gap:26px; padding:28px; width:calc(100% - 28px); }
-  .menu-main a{ font-size:21px; }
-  .menu-mark{ width:160px; right:-40px; bottom:-40px; }
+  .nav-inner{ height:72px; gap:12px; }
+  .brand img{ width:92px; }
+  .nav-actions{ gap:8px; }
+  .nav-cta{ display:none; }
+  .lang-btn{ height:36px; padding:0 12px; font-size:14px; }
+  .theme-btn{ width:36px; height:36px; }
+  .menu-btn{ padding:9px 14px; font-size:12.5px; }
+  .menu-panel{ top:calc(100% + 8px); padding:0 12px; }
+  .menu-card{
+    grid-template-columns:1fr; gap:22px; padding:22px 22px 26px; width:100%;
+    max-height:calc(100vh - 92px); max-height:calc(100dvh - 92px);
+    overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+    border-radius:18px; scrollbar-width:thin;
+  }
+  .menu-h{ margin-bottom:6px; }
+  .menu-main a{ font-size:20px; padding:11px 0; }
+  .menu-side{ justify-content:flex-start; }
+  .menu-side a{ padding:11px 0; }
+  .menu-mark{ width:140px; right:-30px; bottom:-30px; }
   .hero{ padding-top:130px; }
   .hero-meta{ gap:22px; }
   .b-d,.b-e,.b-f{ grid-column:span 12; }
