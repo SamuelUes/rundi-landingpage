@@ -1,5 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { SafeAreaView, StatusBar, StyleSheet, Animated } from 'react-native';
+import Lenis from 'lenis';
 import HeroSection from './components/HeroSection';
 import FeaturesSection from './components/FeaturesSection';
 import TripTrackingSection from './components/TripTrackingSection';
@@ -14,9 +15,19 @@ const App = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
   const { colors, theme } = useThemeLanguage();
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // El scroll real ocurre en window: el ScrollView de RNW crece con el contenido.
+    const lenis = new Lenis({ autoRaf: true, duration: 1.1 });
+    return () => lenis.destroy();
+  }, []);
+
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={theme === 'dark' ? 'light-content' : 'dark-content'} />
+      <HeaderNav />
       <Animated.ScrollView
         contentContainerStyle={[styles.scrollContent, { backgroundColor: colors.background }]}
         bounces={false}
@@ -26,7 +37,6 @@ const App = () => {
           { useNativeDriver: false },
         )}
       >
-        <HeaderNav />
         <HeroSection />
         <FeaturesSection scrollY={scrollY} />
         <TripTrackingSection scrollY={scrollY} />

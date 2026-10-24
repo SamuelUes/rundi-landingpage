@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Animated, Easing, Image } from 'react-native';
 import SectionHeader from './SectionHeader';
+import Reveal from './Reveal';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
 import { reactLogo, expoLogo, firebaseLogo, gcpLogo, supabaseLogo } from '../assets/techs';
@@ -90,7 +91,7 @@ const TechStackSection: React.FC<TechStackSectionProps> = ({ scrollY }) => {
     const animation = Animated.loop(
       Animated.timing(marqueeAnim, {
         toValue: 1,
-        duration: 12000,
+        duration: 18000,
         easing: Easing.linear,
         useNativeDriver: false,
       }),
@@ -119,8 +120,13 @@ const TechStackSection: React.FC<TechStackSectionProps> = ({ scrollY }) => {
         }
       : undefined;
 
-  const { language, colors: themeColors } = useThemeLanguage();
+  const { theme, language, colors: themeColors } = useThemeLanguage();
+  const isDark = theme === 'dark';
   const copy = techCopy[language];
+
+  // Franja clara intencional: los logos están pensados para fondo claro
+  // y leen mejor sobre una "cinta" blanca dentro del dark premium.
+  const bandBg = isDark ? 'rgba(242,244,248,0.96)' : '#FFFFFF';
 
   return (
     <View style={[styles.root, { backgroundColor: themeColors.background }]}>
@@ -129,7 +135,18 @@ const TechStackSection: React.FC<TechStackSectionProps> = ({ scrollY }) => {
       </View>
 
       <View style={styles.marqueeContainer}>
-        <View style={styles.marqueeMask}>
+        <Reveal delay={0.1}>
+        <div style={{ position: 'relative' }}>
+        <View
+          style={[
+            styles.marqueeMask,
+            {
+              backgroundColor: bandBg,
+              borderTopColor: themeColors.border,
+              borderBottomColor: themeColors.border,
+            },
+          ]}
+        >
           <Animated.View style={[styles.marqueeTrack, marqueeStyle]}>
             <View
               style={styles.marqueeRow}
@@ -177,6 +194,32 @@ const TechStackSection: React.FC<TechStackSectionProps> = ({ scrollY }) => {
             </View>
           </Animated.View>
         </View>
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: 0,
+            width: 90,
+            zIndex: 2,
+            pointerEvents: 'none',
+            background: `linear-gradient(90deg, ${bandBg}, transparent)`,
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            right: 0,
+            width: 90,
+            zIndex: 2,
+            pointerEvents: 'none',
+            background: `linear-gradient(270deg, ${bandBg}, transparent)`,
+          }}
+        />
+        </div>
+        </Reveal>
       </View>
     </View>
   );
@@ -202,11 +245,9 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'stretch',
     overflow: 'hidden',
-    borderRadius: 0,
-    borderWidth: 0,
-    borderColor: 'transparent',
-    // franja gris translúcida detrás de los logos
-    backgroundColor: 'rgba(187, 184, 184, 0.29)',
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    backgroundColor: '#FFFFFF',
   },
   marqueeTrack: {
     flexDirection: 'row',
@@ -217,31 +258,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   marqueeItem: {
-    paddingHorizontal: 18,
-    paddingVertical: 10,
+    paddingHorizontal: 34,
+    paddingVertical: 22,
   },
   marqueeIcon: {
-    height: 28,
+    height: 58,
   },
   logoReact: {
-    width: 120,
-    height: 120,
+    width: 58,
+    height: 58,
   },
   logoExpo: {
-    width: 200,
-    height: 140,
+    width: 83,
+    height: 58,
   },
   logoFirebase: {
-    width: 180,
-    height: 140,
+    width: 75,
+    height: 58,
   },
   logoGcp: {
-    width: 340,
-    height: 160,
+    width: 123,
+    height: 58,
   },
   logoSupabase: {
-    width: 120,
-    height: 120,
+    width: 58,
+    height: 58,
   },
   marqueeLabel: {
     fontSize: 13,

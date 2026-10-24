@@ -1,4 +1,3 @@
-export const logo = require('./images/logos/logo_2.png');
-export const appIcon = require('./images/icons/icon.png');
-export const appScreenshot = require('./images/icons/icon_recort.png');
-
+export const logo = require('./images/splash-icon.png');
+export const appIcon = require('./images/rundi_logo_bg.png');
+export const appScreenshot = require('./images/rundi_logo_bg.png');

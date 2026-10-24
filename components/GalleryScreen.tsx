@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View, Text, Image, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, View, Text, Image, TouchableOpacity, useWindowDimensions } from 'react-native';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
 import { typography } from '../theme/typography';
@@ -7,10 +10,16 @@ import HeaderNav from './HeaderNav';
 import { useThemeLanguage } from '../theme/ThemeContext';
 import type { LanguageCode } from '../theme/ThemeContext';
 
-const clientHomeProto = require('../assets/images/prototipe_phones/clienthome_prototipe.png');
-const driverHomeProto = require('../assets/images/prototipe_phones/driverhome_prototipe.png');
-const availableProto = require('../assets/images/prototipe_phones/available_prototipe.png');
-const activeRideProto = require('../assets/images/prototipe_phones/activeride_prototipe.png');
+const promo1 = require('../assets/images/campaña2/promo_1.png');
+const promo2 = require('../assets/images/campaña2/promo_2.png');
+const promo3 = require('../assets/images/campaña2/promo_3.png');
+const promo4 = require('../assets/images/campaña2/promo_4.png');
+const promo5 = require('../assets/images/campaña2/promo_5.png');
+
+const slideAssets = [promo1, promo2, promo3, promo4, promo5];
+
+// Arte line-art sobre blanco → marco "print" crema sobre el fondo oscuro.
+const ART_PRINT_BG = '#F4EFE3';
 
 const toImageSource = (asset: any): any => {
   if (!asset) return asset;
@@ -20,67 +29,102 @@ const toImageSource = (asset: any): any => {
   return maybe;
 };
 
+type SlideCopy = {
+  title: string;
+  text: string;
+};
+
 type GalleryCopy = {
   title: string;
   subtitle: string;
   mainTitle: string;
   mainSubtitle: string;
-  secondary1Title: string;
-  secondary1Text: string;
-  secondary2Title: string;
-  secondary2Text: string;
+  slides: SlideCopy[];
 };
 
 const galleryCopy: Record<LanguageCode, GalleryCopy> = {
   es: {
     title: 'Galería',
     subtitle:
-      'Una vista rápida de cómo se ve Rundi en acción: seguimiento en tiempo real, viajes multi-destino y una interfaz pensada para la realidad de Nicaragua.',
-    mainTitle: 'Diseñado para ti.',
-    mainSubtitle: 'Diseñado para usuarios y para conductores',
-    secondary1Title: 'Seguimiento en tiempo real',
-    secondary1Text: 'Vista de mapa en vivo para tus viajes.',
-    secondary2Title: 'Viaje en curso',
-    secondary2Text: 'Detalle visual de un viaje activo con puntos de ruta.',
+      'Rundi en la vida real: salidas de noche, universidad, trabajo y familia. Un mismo conductor designado para cada escenario.',
+    mainTitle: 'Para cada plan, un Rundi.',
+    mainSubtitle: 'Escenarios reales en Nicaragua',
+    slides: [
+      { title: 'Noches que terminan bien', text: 'Tu conductor te espera a la salida.' },
+      { title: 'De la U a casa', text: 'Traslados seguros para estudiantes.' },
+      { title: 'Planes con amigos', text: 'Todos llegan; nadie maneja cansado.' },
+      { title: 'Días de trabajo', text: 'Movilidad confiable para tu agenda.' },
+      { title: 'Para toda la familia', text: 'Viajes tranquilos para todos.' },
+    ],
   },
   en: {
     title: 'Gallery',
     subtitle:
-      'A quick look at how Rundi works in action: real-time tracking, multi-destination trips and an interface designed for the reality of Nicaragua.',
-    mainTitle: 'Designed for you.',
-    mainSubtitle: 'Built for riders and drivers',
-    secondary1Title: 'Real-time tracking',
-    secondary1Text: 'Live map view for your trips.',
-    secondary2Title: 'Trip in progress',
-    secondary2Text: 'Visual detail of an active trip with route points.',
+      'Rundi in real life: nights out, campus, work and family. One designated driver for every scenario.',
+    mainTitle: 'A Rundi for every plan.',
+    mainSubtitle: 'Real scenarios in Nicaragua',
+    slides: [
+      { title: 'Nights that end well', text: 'Your driver is waiting outside.' },
+      { title: 'Campus to home', text: 'Safe rides for students.' },
+      { title: 'Plans with friends', text: 'Everyone gets home; nobody drives tired.' },
+      { title: 'Work days', text: 'Reliable mobility for your schedule.' },
+      { title: 'For the whole family', text: 'Calm rides for everyone.' },
+    ],
   },
   zh: {
     title: '图库',
-    subtitle:
-      '快速浏览 Rundi 的实际体验：实时行程追踪、多目的地行程，以及为尼加拉瓜场景设计的界面。',
-    mainTitle: '为你而生。',
-    mainSubtitle: '同时为乘客与司机优化的体验',
-    secondary1Title: '实时行程追踪',
-    secondary1Text: '为你的行程提供实时地图视图。',
-    secondary2Title: '进行中的行程',
-    secondary2Text: '展示带有路线节点的行程详情。',
+    subtitle: 'Rundi 融入真实生活：夜晚出行、校园、工作与家庭，每个场景都有指定司机。',
+    mainTitle: '每种计划，都有 Rundi。',
+    mainSubtitle: '尼加拉瓜的真实出行场景',
+    slides: [
+      { title: '安心夜归', text: '司机在出口等你。' },
+      { title: '从校园到家', text: '为学生提供安全接送。' },
+      { title: '朋友聚会', text: '人人平安到家，无人疲劳驾驶。' },
+      { title: '工作日', text: '为你的日程提供可靠出行。' },
+      { title: '全家适用', text: '人人安心出行。' },
+    ],
   },
 };
 
 const GalleryScreen: React.FC = () => {
-  const clientHomeSource: any = toImageSource(clientHomeProto as any);
-  const availableSource: any = toImageSource(availableProto as any);
-  const driverHomeSource: any = toImageSource(driverHomeProto as any);
-  const activeRideSource: any = toImageSource(activeRideProto as any);
+  const { width } = useWindowDimensions();
+  const isNarrow = width < 768;
 
-  const [hoveredTop, setHoveredTop] = useState<'client' | 'driver' | null>(null);
-  const [hoveredBottom, setHoveredBottom] = useState<'available' | 'active' | null>(null);
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true, align: 'center' },
+    [Autoplay({ delay: 4200, stopOnInteraction: false })],
+  );
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [slideCount, setSlideCount] = useState(0);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
+    const onInit = () => {
+      setSlideCount(emblaApi.scrollSnapList().length);
+      onSelect();
+    };
+    onInit();
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onInit);
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onInit);
+    };
+  }, [emblaApi]);
 
   const { colors: themeColors, language } = useThemeLanguage();
   const copy = galleryCopy[language];
 
+  const slides = slideAssets.map((asset, index) => ({
+    key: `promo-${index}`,
+    source: toImageSource(asset),
+    title: copy.slides[index]?.title ?? '',
+    text: copy.slides[index]?.text ?? '',
+  }));
+
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: themeColors.background }]}> 
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: themeColors.background }]}>
       <HeaderNav />
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { backgroundColor: themeColors.background }]}
@@ -97,80 +141,112 @@ const GalleryScreen: React.FC = () => {
             ]}
           >
             <Text style={[styles.mainTitle, { color: themeColors.text }]}>{copy.mainTitle}</Text>
-            <Text style={[styles.mainSubtitle, { color: themeColors.textSecondary }]}>{copy.mainSubtitle}</Text>
+            <Text style={[styles.mainSubtitle, { color: themeColors.textSecondary }]}>
+              {copy.mainSubtitle}
+            </Text>
 
-            <View style={styles.prototypesRow}>
-              <Pressable
-                onHoverIn={() => setHoveredTop('client')}
-                onHoverOut={() => {
-                  setHoveredTop((prev) => (prev === 'client' ? null : prev));
-                }}
-                style={[
-                  styles.prototypeSlot,
-                  hoveredTop === 'client' && styles.prototypeSlotExpanded,
-                  hoveredTop === 'driver' && styles.prototypeSlotShrunk,
-                ]}
-              >
-                <Image source={clientHomeSource} style={styles.prototypeImage as any} resizeMode="contain" />
-              </Pressable>
+            <View style={styles.carouselWrap}>
+              <div ref={emblaRef} style={emblaViewportStyle}>
+                <div style={emblaContainerStyle}>
+                  {slides.map((slide) => (
+                    <div
+                      key={slide.key}
+                      style={{
+                        ...emblaSlideStyle,
+                        flex: isNarrow ? '0 0 82%' : '0 0 44%',
+                      }}
+                    >
+                      <div
+                        style={{
+                          ...slideFrameStyle,
+                          border: `1px solid ${themeColors.goldBorder}`,
+                        }}
+                      >
+                        <Image
+                          source={slide.source}
+                          style={styles.slideImage as any}
+                          resizeMode="contain"
+                        />
+                      </div>
+                      <Text style={[styles.slideTitle, { color: themeColors.text }]}>
+                        {slide.title}
+                      </Text>
+                      <Text style={[styles.slideText, { color: themeColors.textSecondary }]}>
+                        {slide.text}
+                      </Text>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-              <Pressable
-                onHoverIn={() => setHoveredTop('driver')}
-                onHoverOut={() => {
-                  setHoveredTop((prev) => (prev === 'driver' ? null : prev));
-                }}
+              <TouchableOpacity
                 style={[
-                  styles.prototypeSlot,
-                  hoveredTop === 'driver' && styles.prototypeSlotExpanded,
-                  hoveredTop === 'client' && styles.prototypeSlotShrunk,
+                  styles.arrowButton,
+                  styles.arrowLeft,
+                  { backgroundColor: themeColors.surface, borderColor: themeColors.border },
                 ]}
+                activeOpacity={0.85}
+                onPress={() => emblaApi?.scrollPrev()}
               >
-                <Image source={driverHomeSource} style={styles.prototypeImage as any} resizeMode="contain" />
-              </Pressable>
+                <ChevronLeft size={20} color={themeColors.text} strokeWidth={2.2} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.arrowButton,
+                  styles.arrowRight,
+                  { backgroundColor: themeColors.surface, borderColor: themeColors.border },
+                ]}
+                activeOpacity={0.85}
+                onPress={() => emblaApi?.scrollNext()}
+              >
+                <ChevronRight size={20} color={themeColors.text} strokeWidth={2.2} />
+              </TouchableOpacity>
+
+              <View style={styles.dotsRow}>
+                {Array.from({ length: slideCount }).map((_, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.dot,
+                      { backgroundColor: themeColors.border },
+                      index === selectedIndex && { backgroundColor: themeColors.gold },
+                    ]}
+                    activeOpacity={0.85}
+                    onPress={() => emblaApi?.scrollTo(index)}
+                  />
+                ))}
+              </View>
             </View>
-          </View>
-
-          <View style={styles.secondaryRow}>
-            <Pressable
-              onHoverIn={() => setHoveredBottom('available')}
-              onHoverOut={() => {
-                setHoveredBottom((prev) => (prev === 'available' ? null : prev));
-              }}
-              style={[
-                styles.secondaryCard,
-                hoveredBottom === 'available' && styles.secondaryCardExpanded,
-                { backgroundColor: themeColors.card, borderColor: themeColors.border },
-              ]}
-            >
-              <Image source={availableSource} style={styles.secondaryImage as any} resizeMode="contain" />
-              <View style={styles.secondaryOverlay}>
-                <Text style={[styles.secondaryTitle, { color: themeColors.text }]}>{copy.secondary1Title}</Text>
-                <Text style={[styles.secondaryText, { color: themeColors.textSecondary }]}>{copy.secondary1Text}</Text>
-              </View>
-            </Pressable>
-
-            <Pressable
-              onHoverIn={() => setHoveredBottom('active')}
-              onHoverOut={() => {
-                setHoveredBottom((prev) => (prev === 'active' ? null : prev));
-              }}
-              style={[
-                styles.secondaryCard,
-                hoveredBottom === 'active' && styles.secondaryCardExpanded,
-                { backgroundColor: themeColors.card, borderColor: themeColors.border },
-              ]}
-            >
-              <Image source={activeRideSource} style={styles.secondaryImage as any} resizeMode="contain" />
-              <View style={styles.secondaryOverlay}>
-                <Text style={[styles.secondaryTitle, { color: themeColors.text }]}>{copy.secondary2Title}</Text>
-                <Text style={[styles.secondaryText, { color: themeColors.textSecondary }]}>{copy.secondary2Text}</Text>
-              </View>
-            </Pressable>
           </View>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
+};
+
+const emblaViewportStyle: React.CSSProperties = {
+  overflow: 'hidden',
+  width: '100%',
+};
+
+const emblaContainerStyle: React.CSSProperties = {
+  display: 'flex',
+};
+
+const emblaSlideStyle: React.CSSProperties = {
+  minWidth: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  paddingLeft: 10,
+  paddingRight: 10,
+};
+
+const slideFrameStyle: React.CSSProperties = {
+  width: '100%',
+  backgroundColor: ART_PRINT_BG,
+  borderRadius: 18,
+  padding: 14,
 };
 
 const styles = StyleSheet.create({
@@ -187,10 +263,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     maxWidth: layout.contentMaxWidth,
     paddingHorizontal: layout.horizontalPadding,
+    width: '100%',
   },
   title: {
     fontSize: typography.heroTitle,
     fontWeight: '800',
+    fontFamily: typography.fontDisplay,
     color: colors.text,
     marginBottom: 8,
   },
@@ -211,6 +289,7 @@ const styles = StyleSheet.create({
   mainTitle: {
     fontSize: 24,
     fontWeight: '700',
+    fontFamily: typography.fontDisplay,
     color: colors.text,
     textAlign: 'center',
     marginBottom: 4,
@@ -220,68 +299,58 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
   },
-  prototypesRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  carouselWrap: {
     marginTop: 18,
-    height: 360,
-    paddingHorizontal: 8,
+    position: 'relative',
   },
-  prototypeSlot: {
-    flex: 1,
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  prototypeSlotExpanded: {
-    flex: 4,
-    transform: [{ scale: 1.06 }],
-  },
-  prototypeSlotShrunk: {
-    flex: 1,
-    transform: [{ scale: 0.94 }],
-  },
-  prototypeImage: {
+  slideImage: {
     width: '100%',
-    height: '100%',
+    height: 320,
   },
-  secondaryRow: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    marginTop: 8,
-  },
-  secondaryCard: {
-    flex: 1,
-    minHeight: 220,
-    borderRadius: 18,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
-    marginRight: 12,
-  },
-  secondaryCardExpanded: {
-    flex: 3,
-    transform: [{ scaleY: 1.06 }],
-  },
-  secondaryImage: {
-    width: '100%',
-    height: 180,
-  },
-  secondaryOverlay: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-  },
-  secondaryTitle: {
+  slideTitle: {
     fontSize: 14,
     fontWeight: '700',
+    fontFamily: typography.fontDisplay,
     color: colors.text,
+    marginTop: 12,
     marginBottom: 4,
+    textAlign: 'center',
   },
-  secondaryText: {
+  slideText: {
     fontSize: 12,
     color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  arrowButton: {
+    position: 'absolute',
+    top: 150,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  arrowLeft: {
+    left: 6,
+  },
+  arrowRight: {
+    right: 6,
+  },
+  dotsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 14,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+    backgroundColor: colors.border,
   },
 });
 

@@ -1,59 +1,34 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import App from '../App';
-import { typography } from '../theme/typography';
-import { useThemeLanguage } from '../theme/ThemeContext';
+import { Cursor, ProgressBar } from './_components/Chrome';
+import Nav from './_components/Nav';
+import Hero from './_components/Hero';
+import Marquee from './_components/Marquee';
+import Services from './_components/Services';
+import HowItWorks from './_components/HowItWorks';
+import AppShowcase from './_components/AppShowcase';
+import Drivers from './_components/Drivers';
+import Quote from './_components/Quote';
+import Coverage from './_components/Coverage';
+import DownloadCTA from './_components/DownloadCTA';
+import Footer from './_components/Footer';
 
 export default function Page() {
-  const [ready, setReady] = useState(false);
-  const { colors } = useThemeLanguage();
-
-  useEffect(() => {
-    // Pequeño delay para evitar el flash de HTML sin estilos al hidratar
-    const timeout = setTimeout(() => {
-      setReady(true);
-    }, 350);
-
-    return () => clearTimeout(timeout);
-  }, []);
-
-  if (!ready) {
-    return (
-      <div
-        style={{
-          minHeight: '100vh',
-          width: '100%',
-          backgroundColor: colors.background,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <View style={styles.loadingCard}>
-          <ActivityIndicator size="large" color={colors.gold} />
-          <Text style={styles.loadingText}>Cargando Rundi…</Text>
-        </View>
-      </div>
-    );
-  }
-
-  return <App />;
+  return (
+    <>
+      <ProgressBar />
+      <Cursor />
+      <Nav />
+      <main>
+        <Hero />
+        <Marquee />
+        <Services />
+        <HowItWorks />
+        <AppShowcase />
+        <Drivers />
+        <Quote />
+        <Coverage />
+        <DownloadCTA />
+      </main>
+      <Footer />
+    </>
+  );
 }
-
-const styles = StyleSheet.create({
-  loadingCard: {
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    borderRadius: 18,
-    borderWidth: 1,
-    // colores se aplican usando contexto en el wrapper
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: typography.body,
-    // color se aplica desde el contexto a través de estilos inline si fuera necesario
-  },
-});

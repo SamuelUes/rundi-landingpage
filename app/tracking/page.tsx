@@ -1,62 +1,609 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import TrackingPage from './Tracking_page';
-import { typography } from '../../theme/typography';
-import { useThemeLanguage } from '../../theme/ThemeContext';
+import { Suspense, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { ArrowRight, Maximize2, Minimize2, Phone, Star, XCircle } from 'lucide-react';
+import PageShell from '../_components/PageShell';
+import TrackingMap, { getLatLngFromLocation } from '../_components/TrackingMap';
+import { ensureVehicleIconUri, extractVehicleTypeFromInfo } from '../../utils/vehicleIcons';
+import {
+  fetchPublicRideTracking,
+  PublicRideTrackingError,
+  type PublicRideTrackingRide,
+} from '../../functions/publicRideTrackingClient';
+import { useThemeLanguage, type LanguageCode } from '../../theme/ThemeContext';
 
-export default function Page() {
-  const [ready, setReady] = useState(false);
-  const { colors } = useThemeLanguage();
+type TripStatus =
+  | 'driver_on_way'
+  | 'driver_arrived'
+  | 'in_progress'
+  | 'pending_payment'
+  | 'completed'
+  | 'canceled';
+
+function mapRemoteStatus(status: string | null | undefined): TripStatus | null {
+  if (!status) return null;
+  switch (status.toLowerCase()) {
+    case 'requested':
+    case 'driver_offered':
+    case 'accepted':
+    case 'driver_on_way':
+    case 'driver_on_route':
+      return 'driver_on_way';
+    case 'driver_arrived':
+      return 'driver_arrived';
+    case 'in_progress':
+      return 'in_progress';
+    case 'pending_payment':
+    case 'pending_rating':
+      return 'pending_payment';
+    case 'rating_completed':
+    case 'completed':
+      return 'completed';
+    case 'canceled':
+      return 'canceled';
+    default:
+      return null;
+  }
+}
+
+const progressOrder: TripStatus[] = [
+  'driver_on_way',
+  'driver_arrived',
+  'in_progress',
+  'pending_payment',
+  'completed',
+  'canceled',
+];
+
+const statusLabels: Record<LanguageCode, Record<TripStatus, string>> = {
+  es: {
+    driver_on_way: 'Conductor en camino',
+    driver_arrived: 'Conductor ha llegado',
+    in_progress: 'Viaje en curso',
+    pending_payment: 'Pendiente de pago',
+    completed: 'Completado',
+    canceled: 'Cancelado',
+  },
+  en: {
+    driver_on_way: 'Driver on the way',
+    driver_arrived: 'Driver has arrived',
+    in_progress: 'Trip in progress',
+    pending_payment: 'Pending payment',
+    completed: 'Completed',
+    canceled: 'Canceled',
+  },
+  zh: {
+    driver_on_way: '司机在路上',
+    driver_arrived: '司机已到达',
+    in_progress: '行程进行中',
+    pending_payment: '待支付',
+    completed: '已完成',
+    canceled: '已取消',
+  },
+};
+
+type TrackingCopy = {
+  titleA: string;
+  titleB: string;
+  lede: string;
+  inputLabel: string;
+  placeholder: string;
+  button: string;
+  loading: string;
+  helper: string;
+  statusLabel: string;
+  routeTitle: string;
+  realtime: string;
+  estimated: string;
+  min: string;
+  km: string;
+  origin: string;
+  extra: string;
+  final: string;
+  errFetch: string;
+  errUnexpected: string;
+  errInvalid: string;
+  errExpired: string;
+  errNotFound: string;
+  canceled: string;
+  pilot: string;
+  yourPilot: string;
+  vehicle: string;
+  plate: string;
+  eta: string;
+  leftTpl: string;
+  contact: string;
+  cancel: string;
+  expand: string;
+  collapse: string;
+};
+
+const copy: Record<LanguageCode, TrackingCopy> = {
+  es: {
+    titleA: 'Seguí tu ',
+    titleB: 'viaje',
+    lede: 'Ingresá el código de seguimiento que recibiste para ver la ruta, la ubicación del vehículo y los puntos de origen y destino.',
+    inputLabel: 'Código de seguimiento',
+    placeholder: 'ABC23456',
+    button: 'Ver viaje',
+    loading: 'Cargando…',
+    helper: 'El código lo genera la app Rundi cuando un pasajero o conductor comparte su viaje. Tiene 8 caracteres y expira después de unas horas.',
+    statusLabel: 'Estado del viaje',
+    routeTitle: 'Detalle de la ruta',
+    realtime: 'Ruta en tiempo real usando la ubicación del vehículo.',
+    estimated: 'Mostrando un progreso estimado del viaje.',
+    min: 'min',
+    km: 'km',
+    origin: 'Origen',
+    extra: 'Parada extra',
+    final: 'Destino final',
+    errFetch: 'No se pudo obtener la información del viaje.',
+    errUnexpected: 'Error obteniendo la información del viaje.',
+    errInvalid: 'Código de seguimiento inválido. Revisá que esté bien escrito.',
+    errExpired: 'Este código de seguimiento expiró. Pedí uno nuevo a quien lo compartió.',
+    errNotFound: 'No encontramos un viaje para este código.',
+    canceled: 'Este viaje ha sido cancelado.',
+    pilot: 'Piloto',
+    yourPilot: 'Tu piloto Rundi',
+    vehicle: 'Vehículo',
+    plate: 'Placa',
+    eta: 'Llegada estimada',
+    leftTpl: '~{n} min restantes',
+    contact: 'Contactar piloto',
+    cancel: 'Cancelar viaje',
+    expand: 'Expandir mapa',
+    collapse: 'Contraer mapa',
+  },
+  en: {
+    titleA: 'Track your ',
+    titleB: 'trip',
+    lede: 'Enter the tracking code you received to see the route, vehicle location and origin/destination points.',
+    inputLabel: 'Tracking code',
+    placeholder: 'ABC23456',
+    button: 'View trip',
+    loading: 'Loading…',
+    helper: 'The tracking code is generated by the Rundi app when a passenger or driver shares their trip. It has 8 characters and expires after a few hours.',
+    statusLabel: 'Trip status',
+    routeTitle: 'Route details',
+    realtime: 'Real-time route using the vehicle location.',
+    estimated: 'Showing an estimated trip progress.',
+    min: 'min',
+    km: 'km',
+    origin: 'Origin',
+    extra: 'Extra stop',
+    final: 'Final destination',
+    errFetch: 'Could not get trip information.',
+    errUnexpected: 'Error fetching trip information.',
+    errInvalid: 'Invalid tracking code. Check it and try again.',
+    errExpired: 'This tracking code has expired. Ask for a new one.',
+    errNotFound: 'No trip was found for this code.',
+    canceled: 'This trip has been canceled.',
+    pilot: 'Driver',
+    yourPilot: 'Your Rundi driver',
+    vehicle: 'Vehicle',
+    plate: 'Plate',
+    eta: 'Estimated arrival',
+    leftTpl: '~{n} min left',
+    contact: 'Contact driver',
+    cancel: 'Cancel trip',
+    expand: 'Expand map',
+    collapse: 'Collapse map',
+  },
+  zh: {
+    titleA: '实时查看你的',
+    titleB: '行程',
+    lede: '输入你收到的追踪代码，即可查看路线、车辆位置以及起点和各个目的地。',
+    inputLabel: '追踪代码',
+    placeholder: 'ABC23456',
+    button: '查看行程',
+    loading: '加载中…',
+    helper: '追踪代码由 Rundi 应用在乘客或司机分享行程时生成，共 8 个字符，数小时后过期。',
+    statusLabel: '行程状态',
+    routeTitle: '路线详情',
+    realtime: '基于车辆实时位置展示路线。',
+    estimated: '当前显示的是预估行程进度。',
+    min: '分钟',
+    km: '公里',
+    origin: '起点',
+    extra: '途经点',
+    final: '终点',
+    errFetch: '无法获取行程信息。',
+    errUnexpected: '获取行程信息时出错。',
+    errInvalid: '追踪代码无效，请检查后重试。',
+    errExpired: '该追踪代码已过期，请索取新代码。',
+    errNotFound: '未找到与此代码关联的行程。',
+    canceled: '此行程已被取消。',
+    pilot: '司机',
+    yourPilot: '您的 Rundi 司机',
+    vehicle: '车辆',
+    plate: '车牌',
+    eta: '预计到达',
+    leftTpl: '约剩 {n} 分钟',
+    contact: '联系司机',
+    cancel: '取消行程',
+    expand: '展开地图',
+    collapse: '收起地图',
+  },
+};
+
+function errorMessage(code: string | undefined, backend: string | undefined, c: TrackingCopy) {
+  switch (code) {
+    case 'invalid-code':
+    case 'invalid-argument':
+      return c.errInvalid;
+    case 'code-expired':
+      return c.errExpired;
+    case 'not-found':
+      return c.errNotFound;
+    default:
+      return backend || c.errFetch;
+  }
+}
+
+function locationLabel(location: any, fallback: string): string {
+  if (!location || typeof location !== 'object') return fallback;
+  const l = location as any;
+  const first = [l.title, l.name, l.label, l.address, l.formattedAddress, l.description].find(
+    (v) => typeof v === 'string' && v.trim().length > 0,
+  );
+  return (first as string) || fallback;
+}
+
+function pickStr(...vals: any[]): string | null {
+  for (const v of vals) if (typeof v === 'string' && v.trim()) return v.trim();
+  return null;
+}
+
+function pickNum(...vals: any[]): number | null {
+  for (const v of vals) {
+    const n = typeof v === 'string' ? parseFloat(v) : v;
+    if (typeof n === 'number' && isFinite(n)) return n;
+  }
+  return null;
+}
+
+function driverFrom(info: any) {
+  const d = info ?? {};
+  const vs = Array.isArray(d.vehicles)
+    ? d.vehicles.find((x: any) => x?.is_active || x?.isActive)
+    : d.vehicles && typeof d.vehicles === 'object'
+    ? Object.values<any>(d.vehicles).find((x: any) => x?.is_active || x?.isActive)
+    : undefined;
+  const v = d.currentVehicle ?? d.activeVehicle ?? d.vehicle ?? vs ?? {};
+  return {
+    name: pickStr(
+      d.name,
+      d.fullName,
+      d.displayName,
+      d.driverName,
+      d.firstName ? `${d.firstName} ${d.lastName ?? ''}`.trim() : null,
+    ),
+    photo: pickStr(d.photoUrl, d.photo, d.avatarUrl, d.avatar, d.profilePicture, d.imageUrl),
+    rating: pickNum(d.rating, d.stars, d.averageRating, d.score),
+    vehicle: pickStr(
+      v.brand && v.model ? `${v.brand} ${v.model}` : null,
+      v.model,
+      v.name,
+      v.description,
+    ),
+    plate: pickStr(v.plate, v.plates, v.licensePlate, d.plate, d.licensePlate),
+    phone: pickStr(d.phone, d.phoneNumber, d.mobile, d.phone_number),
+  };
+}
+
+function fmtLL(ll: { lat: number; lng: number }): string {
+  return `${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}`;
+}
+
+const TIME_LOCALE: Record<LanguageCode, string> = { es: 'es-NI', en: 'en-US', zh: 'zh-CN' };
+
+function TrackingInner() {
+  const searchParams = useSearchParams();
+  const { language } = useThemeLanguage();
+  const c = copy[language];
+  const labels = statusLabels[language];
+
+  const [code, setCode] = useState('');
+  const [ride, setRide] = useState<PublicRideTrackingRide | null>(null);
+  const [status, setStatus] = useState<TripStatus | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setReady(true);
-    }, 350);
+    if (!expanded) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExpanded(false);
+    };
+    window.addEventListener('keydown', onKey);
+    const t = setTimeout(() => window.dispatchEvent(new Event('resize')), 60);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+      clearTimeout(t);
+    };
+  }, [expanded]);
 
-    return () => clearTimeout(timeout);
-  }, []);
+  const fetchRide = async (raw: string) => {
+    const trimmed = raw.trim().toUpperCase();
+    if (!trimmed || loading) return;
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetchPublicRideTracking(trimmed);
+      if (res.success && res.ride) {
+        setRide(res.ride);
+        setStatus(mapRemoteStatus(res.ride.status ?? null));
+      } else {
+        setRide(null);
+        setStatus(null);
+        setError(errorMessage(res.code, res.error, c));
+      }
+    } catch (err: any) {
+      setRide(null);
+      setStatus(null);
+      setError(
+        err instanceof PublicRideTrackingError
+          ? errorMessage(err.code, err.message, c)
+          : typeof err?.message === 'string'
+          ? err.message
+          : c.errUnexpected,
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (!ready) {
-    return (
-      <div
-        style={{
-          minHeight: '100vh',
-          width: '100%',
-          backgroundColor: colors.background,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <View style={styles.loadingCard}>
-          <ActivityIndicator size="large" color={colors.gold} />
-          <Text style={styles.loadingText}>Cargando Rundi…</Text>
-        </View>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const fromQuery = (searchParams?.get('code') || '').trim().toUpperCase();
+    if (!fromQuery) return;
+    setCode(fromQuery);
+    fetchRide(fromQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const idx = status ? progressOrder.indexOf(status) : -1;
+  const progress =
+    ride && typeof ride.progress === 'number'
+      ? Math.min(Math.max(ride.progress, 0), 100) / 100
+      : idx >= 0
+      ? (idx + 1) / progressOrder.length
+      : 0;
+
+  const distanceKm =
+    typeof ride?.estimatedDistance === 'number' ? (ride.estimatedDistance / 1000).toFixed(1) : null;
+  const durationMin =
+    typeof ride?.estimatedDuration === 'number' ? Math.round(ride.estimatedDuration / 60) : null;
+  const hasVehicle = !!ride?.vehicleLocation;
+
+  const points = ride
+    ? [
+        { icon: '/assets/images/icons/origin_marker/origin_marker.png', l: c.origin, v: locationLabel(ride.origin, c.origin) },
+        ...(ride.extraDestination
+          ? [{ icon: '/assets/images/icons/select-extra-destination/selectextradestination.png', l: c.extra, v: locationLabel(ride.extraDestination, c.extra) }]
+          : []),
+        { icon: '/assets/images/icons/select-final-destination/selectfinaldestination.png', l: c.final, v: locationLabel(ride.finalDestination || ride.destination, c.final) },
+      ]
+    : [];
+
+  const dotClass = status === 'completed' ? 'done' : status === 'canceled' ? 'off' : '';
+
+  const originLL = ride ? getLatLngFromLocation(ride.origin) : null;
+  const finalLL = ride ? getLatLngFromLocation(ride.finalDestination || ride.destination) : null;
+  const drv = ride ? driverFrom(ride.driverInfo) : null;
+  const vehType = ride
+    ? extractVehicleTypeFromInfo(ride.driverInfo ?? {}) || ride.serviceType
+    : null;
+  const vehIcon = vehType ? ensureVehicleIconUri(vehType) : null;
+  const vehLabel = pickStr(drv?.vehicle, ride?.serviceType);
+  const initials = (drv?.name || 'R')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
+  const etaDate =
+    ride && typeof ride.estimatedDuration === 'number'
+      ? new Date(Date.now() + ride.estimatedDuration * 1000)
+      : null;
+  const etaStr = etaDate
+    ? etaDate.toLocaleTimeString(TIME_LOCALE[language], { hour: '2-digit', minute: '2-digit' })
+    : '';
+  const price = typeof ride?.estimatedPrice === 'number' ? Math.round(ride.estimatedPrice) : null;
+  const live = status !== 'completed' && status !== 'canceled';
+  const etaTitle = !live && status ? labels[status] : `${c.eta}${etaStr ? `: ${etaStr}` : ''}`;
+  const subline = [
+    live && durationMin ? c.leftTpl.replace('{n}', String(durationMin)) : null,
+    distanceKm ? `${distanceKm} ${c.km}` : null,
+    hasVehicle ? c.realtime : c.estimated,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
-    <div style={{ minHeight: '100vh', width: '100%', display: 'flex' }}>
-      <TrackingPage />
-    </div>
+    <PageShell
+      folio="Tracking"
+      title={
+        <>
+          {c.titleA}
+          <em className="hl hl-violet">{c.titleB}</em>
+        </>
+      }
+      lede={c.lede}
+    >
+      <div className={`tk-stage${expanded ? ' expanded' : ''}`}>
+        <div className="tk-left">
+          <div className="track-overlay">
+            <span className="rlabel">{c.inputLabel}</span>
+            <form
+              className="track-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                fetchRide(code);
+              }}
+            >
+              <input
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                placeholder={c.placeholder}
+                autoCapitalize="characters"
+                autoCorrect="off"
+                maxLength={12}
+              />
+              <button className="btn btn-gold" type="submit" disabled={loading}>
+                {loading ? c.loading : c.button}
+                <ArrowRight size={15} />
+              </button>
+            </form>
+            {error && <div className="track-err">{error}</div>}
+            {status === 'canceled' && <div className="track-err">{c.canceled}</div>}
+            {!ride && !error && <p className="track-hint">{c.helper}</p>}
+          </div>
+          {ride && originLL && (
+            <div className="tk-chip">
+              <img src="/assets/images/icons/origin_marker/origin_marker.png" alt="" />
+              <div className="tk-chip-t">
+                <b>{locationLabel(ride.origin, c.origin)}</b>
+                <span>{fmtLL(originLL)}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="tk-map">
+          <TrackingMap ride={ride} />
+          <button
+            type="button"
+            className="tk-expand"
+            onClick={() => setExpanded((v) => !v)}
+            aria-label={expanded ? c.collapse : c.expand}
+            title={expanded ? c.collapse : c.expand}
+          >
+            {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+        </div>
+
+        {ride && (
+          <>
+            {status && (
+              <div className="tk-status">
+                <span className={`t-dot ${dotClass}`} />
+                <b>{labels[status]}</b>
+              </div>
+            )}
+            {finalLL && (
+              <div className="tk-chip tk-dest">
+                <img
+                  src="/assets/images/icons/select-final-destination/selectfinaldestination.png"
+                  alt=""
+                />
+                <div className="tk-chip-t">
+                  <b>{locationLabel(ride.finalDestination || ride.destination, c.final)}</b>
+                  <span>{fmtLL(finalLL)}</span>
+                </div>
+              </div>
+            )}
+            <div className="tk-sheet">
+              <div className="tk-driver">
+                <div className="tk-ava">
+                  {drv?.photo ? <img src={drv.photo} alt="" /> : <span>{initials}</span>}
+                  {live && <i className="tk-live" />}
+                </div>
+                <div className="tk-dinfo">
+                  <b>{drv?.name ? `${c.pilot}: ${drv.name}` : c.yourPilot}</b>
+                  {drv?.rating != null && (
+                    <div className="tk-stars">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Star
+                          key={i}
+                          size={11}
+                          fill={i <= Math.round(drv.rating!) ? 'currentColor' : 'none'}
+                        />
+                      ))}
+                      <b>{drv.rating.toFixed(1)}</b>
+                    </div>
+                  )}
+                  {(vehLabel || drv?.plate) && (
+                    <div className="tk-veh">
+                      {vehIcon && <img src={vehIcon} alt="" />}
+                      <span>
+                        {[vehLabel, drv?.plate && `${c.plate}: ${drv.plate}`]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="tk-eta">
+                <div className="tk-eta-top">
+                  <b>{etaTitle}</b>
+                  {price != null && <em>~C${price}</em>}
+                </div>
+                <span className="tk-eta-sub">{subline}</span>
+                <div className="track-bar">
+                  <i style={{ width: `${progress * 100}%` }} />
+                </div>
+                <div className="tk-acts">
+                  <a className="tk-act" href={drv?.phone ? `tel:${drv.phone}` : '/contacto'}>
+                    <Phone size={14} />
+                    {c.contact}
+                  </a>
+                  <a
+                    className="tk-act danger"
+                    href={`mailto:soporte@rundi.app?subject=${encodeURIComponent(
+                      `${c.cancel} — ${code}`,
+                    )}`}
+                  >
+                    <XCircle size={14} />
+                    {c.cancel}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {ride && (
+        <div className="track-card" style={{ marginTop: 22 }}>
+          <span className="rlabel">{c.routeTitle}</span>
+          <div className="t-points">
+            {points.map((p, i) => (
+              <div className="t-point" key={i}>
+                <img src={p.icon} alt="" />
+                <span className="tl">{p.l}</span>
+                <span className="tv">{p.v}</span>
+              </div>
+            ))}
+          </div>
+          <div className="t-meta">
+            {distanceKm && (
+              <span className="t-chip">
+                <b>{distanceKm}</b> {c.km}
+              </span>
+            )}
+            {durationMin && (
+              <span className="t-chip">
+                <b>{durationMin}</b> {c.min}
+              </span>
+            )}
+            <span className="t-chip">{hasVehicle ? c.realtime : c.estimated}</span>
+          </div>
+        </div>
+      )}
+    </PageShell>
   );
 }
 
-const styles = StyleSheet.create({
-  loadingCard: {
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    borderRadius: 18,
-    borderWidth: 1,
-    // colores se aplican usando contexto
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: typography.body,
-    // color se aplica usando contexto si es necesario
-  },
-});
+export default function TrackingPage() {
+  return (
+    <Suspense fallback={null}>
+      <TrackingInner />
+    </Suspense>
+  );
+}

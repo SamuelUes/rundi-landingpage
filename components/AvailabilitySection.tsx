@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, useWindowDimensions } from 'react-native';
+import { MapPin } from 'lucide-react';
 import SectionHeader from './SectionHeader';
+import Reveal from './Reveal';
 import { colors } from '../theme/colors';
 import { layout } from '../theme/layout';
 import { typography } from '../theme/typography';
@@ -73,22 +75,37 @@ const AvailabilitySection: React.FC<AvailabilitySectionProps> = ({ scrollY }) =>
       />
 
       <View style={[styles.band, isDark && styles.bandDark, { backgroundColor: themeColors.background }]}>
-        <View
-          style={[
-            styles.card,
-            isDark && styles.cardDark,
-            { borderColor: themeColors.border, backgroundColor: themeColors.surface },
-          ]}
-        >
+        <Reveal style={styles.cardReveal}>
+          <View
+            style={[
+              styles.card,
+              isDark && styles.cardDark,
+              { borderColor: themeColors.border, backgroundColor: themeColors.surface },
+            ]}
+          >
+          <div style={cardGlowStyle} />
           <View style={[styles.cardContentRow, isNarrow && styles.cardContentColumn]}>
             <View style={[styles.textColumn, isNarrow && styles.textColumnNarrow]}>
-              <Text style={[styles.tag, { color: themeColors.goldLight }]}>{copy.tag}</Text>
+              <View
+                style={[
+                  styles.tagChip,
+                  { backgroundColor: themeColors.goldSoft, borderColor: themeColors.goldBorder },
+                ]}
+              >
+                <MapPin size={11} color={themeColors.gold} strokeWidth={2.2} style={{ marginRight: 5 }} />
+                <Text style={[styles.tag, { color: themeColors.goldLight }]}>{copy.tag}</Text>
+              </View>
               <Text style={[styles.title, { color: themeColors.text }]}>{copy.cardTitle}</Text>
               <Text style={[styles.text, { color: themeColors.textSecondary }]}>{copy.body}</Text>
               <Text style={[styles.cities, { color: themeColors.textSecondary }]}>{copy.cities}</Text>
             </View>
             <View style={[styles.imageColumn, isNarrow && styles.imageColumnNarrow]}>
-              <View style={[styles.imageFrame, { backgroundColor: themeColors.card }]}>
+              <View
+                style={[
+                  styles.imageFrame,
+                  { backgroundColor: '#F4EFE3', borderColor: themeColors.goldBorder },
+                ]}
+              >
                 <Image
                   source={coverageSource}
                   style={styles.coverageImage as any}
@@ -97,10 +114,21 @@ const AvailabilitySection: React.FC<AvailabilitySectionProps> = ({ scrollY }) =>
               </View>
             </View>
           </View>
-        </View>
+          </View>
+        </Reveal>
       </View>
     </View>
   );
+};
+
+const cardGlowStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: '-30%',
+  right: '-8%',
+  width: '55%',
+  height: '130%',
+  background: 'radial-gradient(closest-side, rgba(212, 175, 55, 0.13), transparent)',
+  pointerEvents: 'none',
 };
 
 const styles = StyleSheet.create({
@@ -117,19 +145,23 @@ const styles = StyleSheet.create({
     // banda ligeramente más clara que el fondo global para suavizar el contraste
     backgroundColor: colors.background,
   },
-  card: {
+  cardReveal: {
+    width: '100%',
     maxWidth: layout.contentMaxWidth,
-    alignSelf: 'center',
-    borderRadius: 24,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+  card: {
+    borderRadius: 28,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
-    paddingVertical: 24,
-    paddingHorizontal: 24,
+    paddingVertical: 34,
+    paddingHorizontal: 34,
+    overflow: 'hidden',
+    position: 'relative',
   },
   cardDark: {
-    borderColor: 'rgba(148,163,184,0.35)',
-    backgroundColor: '#f9fafb',
     shadowColor: '#020617',
     shadowOpacity: 0.3,
     shadowRadius: 38,
@@ -166,9 +198,15 @@ const styles = StyleSheet.create({
     maxWidth: 300,
     maxHeight: 260,
     aspectRatio: 1,
-    borderRadius: 20,
+    borderRadius: 22,
+    borderWidth: 1,
     backgroundColor: colors.card,
     overflow: 'hidden',
+    shadowColor: colors.gold,
+    shadowOpacity: 0.18,
+    shadowRadius: 44,
+    shadowOffset: { width: 0, height: 20 },
+    elevation: 12,
   },
   imageColumnNarrow: {
     minWidth: 0,
@@ -179,18 +217,30 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  tag: {
+  tagChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
     alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    borderWidth: 1,
+    marginBottom: 12,
+  },
+  tag: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
     color: colors.goldLight,
-    marginBottom: 6,
   },
   title: {
-    fontSize: typography.sectionTitle,
+    fontSize: 28,
     fontWeight: '700',
+    fontFamily: typography.fontDisplay,
+    letterSpacing: -0.4,
     color: colors.text,
-    marginBottom: 8,
+    marginBottom: 10,
   },
   text: {
     fontSize: typography.body,

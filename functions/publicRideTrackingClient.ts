@@ -18,7 +18,8 @@ export interface PublicRideLocation {
 }
 
 export interface PublicRideTrackingRide {
-  rideId: string;
+  // Cuando el acceso es por código de seguimiento, el backend no expone el rideId real
+  rideId: string | null;
   source: 'active' | 'completed';
   status: PublicRideStatus | null;
   serviceType: string | null;
@@ -53,6 +54,22 @@ export interface FetchPublicRideTrackingOptions {
   baseUrl?: string;
 }
 
+/**
+ * Error tipado del endpoint getPublicRideTracking. `code` trae el código de
+ * error del backend (p. ej. 'invalid-code', 'code-expired', 'not-found').
+ */
+export class PublicRideTrackingError extends Error {
+  code?: string;
+  status?: number;
+
+  constructor(message: string, options: { code?: string; status?: number } = {}) {
+    super(message);
+    this.name = 'PublicRideTrackingError';
+    this.code = options.code;
+    this.status = options.status;
+  }
+}
+
 function getBaseUrl(override?: string): string {
   const fromOverride = override?.trim();
   if (fromOverride) return fromOverride.replace(/\/$/, '');
@@ -68,16 +85,20 @@ function getBaseUrl(override?: string): string {
 }
 
 /**
- * Llama al endpoint HTTP getPublicRideTracking en Firebase Functions.
- * No requiere autenticación; solo usa el rideId y devuelve datos públicos del viaje.
+ * Llama al endpoint HTTP getPublicRideTracking en Firebase Functions usando un
+ * código de seguimiento (rideTrackingCodes en Realtime DB). No requiere
+ * autenticación; el código resuelve el viaje internamente sin exponer el rideId.
  */
 export async function fetchPublicRideTracking(
-  rideId: string,
+  code: string,
   options: FetchPublicRideTrackingOptions = {},
 ): Promise<PublicRideTrackingResponse> {
-  const trimmedId = rideId.trim();
-  if (!trimmedId) {
-    throw new Error('rideId es requerido para obtener el tracking público');
+  const trimmedCode = code.trim().toUpperCase();
+  if (!trimmedCode) {
+    throw new PublicRideTrackingError(
+      'El código de seguimiento es requerido para obtener el tracking público',
+      { code: 'invalid-argument' },
+    );
   }
 
   const baseUrl = getBaseUrl(options.baseUrl);
@@ -88,20 +109,22 @@ export async function fetchPublicRideTracking(
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ rideId: trimmedId }),
+    body: JSON.stringify({ code: trimmedCode }),
   });
 
   let json: any;
   try {
     json = await res.json();
   } catch (error) {
-    throw new Error(`Respuesta inválida del servidor getPublicRideTracking: ${String(error)}`);
+    throw new PublicRideTrackingError(
+      `Respuesta inválida del servidor getPublicRideTracking: ${String(error)}`,
+    );
   }
 
   if (!res.ok) {
     const message = typeof json?.error === 'string' ? json.error : `Error HTTP ${res.status}`;
     const code = typeof json?.code === 'string' ? json.code : undefined;
-    throw new Error(code ? `${code}: ${message}` : message);
+    throw new PublicRideTrackingError(message, { code, status: res.status });
   }
 
   const response: PublicRideTrackingResponse = {
