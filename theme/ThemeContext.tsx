@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { lightColors, darkColors, type ThemeName } from './colors';
 
 export type LanguageCode = 'es' | 'en' | 'zh';
@@ -48,16 +48,29 @@ export const ThemeLanguageProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  // Sincroniza tema con <html data-theme> y localStorage
+  // La primera escritura en DOM/localStorage ya la hizo el script inline del
+  // layout (y el init de arriba solo lee). Estos effects solo escriben cuando
+  // el valor cambia tras el mount; de lo contrario, el estado inicial ('dark')
+  // pisaría el tema guardado antes de que el init lo leyera — y en StrictMode
+  // la segunda pasada del init ya leería el valor corrupto.
+  const didSyncTheme = useRef(false);
   useEffect(() => {
     if (typeof document === 'undefined') return;
+    if (!didSyncTheme.current) {
+      didSyncTheme.current = true;
+      return;
+    }
     document.documentElement.dataset.theme = theme;
     window.localStorage.setItem(THEME_KEY, theme);
   }, [theme]);
 
-  // Sincroniza idioma con <html lang> y localStorage
+  const didSyncLang = useRef(false);
   useEffect(() => {
     if (typeof document === 'undefined') return;
+    if (!didSyncLang.current) {
+      didSyncLang.current = true;
+      return;
+    }
     window.localStorage.setItem(LANG_KEY, language);
     document.documentElement.setAttribute(
       'lang',

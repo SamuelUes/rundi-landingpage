@@ -4,6 +4,7 @@ import Hero from './_components/Hero';
 import Marquee from './_components/Marquee';
 import Services from './_components/Services';
 import HowItWorks from './_components/HowItWorks';
+import ScheduledTrips from './_components/ScheduledTrips';
 import AppShowcase from './_components/AppShowcase';
 import Drivers from './_components/Drivers';
 import Quote from './_components/Quote';
@@ -20,7 +21,8 @@ const structuredData = [
     '@id': `${SITE_URL}/#organization`,
     name: SITE_NAME,
     url: SITE_URL,
-    logo: `${SITE_URL}/assets/icons/icon-512.png`,
+    logo: `${SITE_URL}/assets/images/rundi_mark.png`,
+    image: `${SITE_URL}/assets/images/rundi_mark.png`,
     description:
       'Plataforma nicaragüense de movilidad: viajes con conductor verificado, conductor designado, multi-destino y seguimiento en tiempo real.',
     address: {
@@ -56,6 +58,7 @@ const structuredData = [
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
     featureList: [
       'Conductor designado',
+      'Viajes programados',
       'Viajes multi-destino',
       'Seguimiento en tiempo real',
       'Pagos flexibles',
@@ -78,6 +81,7 @@ export default function Page() {
         <Marquee />
         <Services />
         <HowItWorks />
+        <ScheduledTrips />
         <AppShowcase />
         <Drivers />
         <Quote />

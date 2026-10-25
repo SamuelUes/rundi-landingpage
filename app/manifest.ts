@@ -16,10 +16,10 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#0A0C10',
     categories: ['travel', 'navigation', 'lifestyle'],
     icons: [
-      { src: '/assets/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { src: '/assets/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { src: '/assets/images/rundi_mark.png', sizes: '192x192', type: 'image/png' },
+      { src: '/assets/images/rundi_mark.png', sizes: '512x512', type: 'image/png' },
       {
-        src: '/assets/icons/maskable-512.png',
+        src: '/assets/images/rundi_mark.png',
         sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable',

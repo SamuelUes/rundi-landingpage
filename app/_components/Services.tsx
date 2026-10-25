@@ -74,11 +74,11 @@ export default function Services() {
               <div className="b-a-media">
                 <figure className="b-a-shot">
                   <Image
-                    src={`${OPT}/dessignated-home.webp`}
+                    src={`${OPT}/media-app/iphonedriverhomescreen.png`}
                     alt={c.fAlt}
                     width={400}
                     height={570}
-                    sizes="(max-width: 768px) 90vw, 100%"
+                    sizes="(max-width: 640px) 82vw, (max-width: 1020px) 42vw, 400px"
                     loading="lazy"
                   />
                   <figcaption>{c.fCap}</figcaption>

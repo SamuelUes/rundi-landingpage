@@ -18,7 +18,7 @@ export default function Drivers() {
       <div className="wrap drive-inner">
         <div>
           <Reveal className="folio">
-            <span className="num">04</span> {c.folio}
+            <span className="num">05</span> {c.folio}
           </Reveal>
           <Reveal delay={1}>
             <h2 className="h-display sec-title">
@@ -52,18 +52,18 @@ export default function Drivers() {
         </div>
         <Reveal className="phones drive-phones" delay={2}>
           <div className="ring"></div>
-          <div className="earn-chip">
-            <div className="ev">C$ 3,850</div>
-            <div className="et">{c.chip}</div>
+          <div className="phone-unit pu-1">
+            <div className="phone">
+              <Image src={`${OPT}/media-app/iphonedriverhomerequest.png`} alt={c.alt1} width={437} height={888} sizes="(max-width:1020px) 46vw, 248px" loading="lazy" />
+            </div>
+            <span className="phone-label">{c.pl1}</span>
           </div>
-          <div className="phone phone-1">
-            <Image src={`${OPT}/driverhome.webp`} alt={c.alt1} width={540} height={440} loading="lazy" />
+          <div className="phone-unit pu-2">
+            <div className="phone">
+              <Image src={`${OPT}/media-app/iphoneavailablescreen.png`} alt={c.alt2} width={437} height={888} sizes="(max-width:1020px) 46vw, 248px" loading="lazy" />
+            </div>
+            <span className="phone-label">{c.pl2}</span>
           </div>
-          <div className="phone phone-2">
-            <Image src={`${OPT}/available.webp`} alt={c.alt2} width={540} height={440} loading="lazy" />
-          </div>
-          <span className="phone-label pl-1">{c.pl1}</span>
-          <span className="phone-label pl-2">{c.pl2}</span>
         </Reveal>
       </div>
     </section>

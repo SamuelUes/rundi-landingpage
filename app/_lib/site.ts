@@ -3,7 +3,11 @@
  * Las URLs de las stores se pueden sobreescribir con env vars sin tocar código:
  *   NEXT_PUBLIC_APP_STORE_URL / NEXT_PUBLIC_PLAY_STORE_URL
  */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://rundiapp.com').replace(/\/$/, '');
+const RAW_SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://rundiapp.com').trim();
+export const SITE_URL = (/^https?:\/\//i.test(RAW_SITE_URL)
+  ? RAW_SITE_URL
+  : `https://${RAW_SITE_URL}`
+).replace(/\/$/, '');
 export const SITE_NAME = 'Rundi';
 export const SITE_LOCALE = 'es_NI';
 

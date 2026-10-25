@@ -127,10 +127,10 @@ export default function Nav() {
           </div>
 
           <div className="menu-side">
-            <span className="menu-h">{c.whyH}</span>
+            <span className="menu-f">{c.whyH}</span>
             {c.side.map((item: any) => (
               <a key={item.b} href={item.href} onClick={() => setOpen(false)}>
-                <span className="b">{item.b}</span>
+                <span className="c">{item.b}</span>
                 <span>{item.s}</span>
               </a>
             ))}

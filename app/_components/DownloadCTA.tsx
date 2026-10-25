@@ -36,7 +36,7 @@ export default function DownloadCTA() {
           />
           <div>
             <div className="folio">
-              <span className="num">06</span> {c.folio}
+              <span className="num">07</span> {c.folio}
             </div>
             <h2 className="h-display" style={{ marginTop: 24 }}>
               {c.t1}

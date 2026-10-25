@@ -18,8 +18,8 @@ export default function AppShowcase() {
               src="/assets/images/opt/outside.webp"
               alt={c.alt}
               width={670}
-              height={440}
-              sizes="(max-width: 768px) 90vw, 55vw"
+              height={340}
+              sizes="(max-width: 1020px) 92vw, 560px"
               loading="lazy"
             />
             <figcaption className="shot-cap">{c.cap}</figcaption>
@@ -28,7 +28,7 @@ export default function AppShowcase() {
 
         <div>
           <Reveal className="folio">
-            <span className="num">03</span> {c.folio}
+            <span className="num">04</span> {c.folio}
           </Reveal>
           <Reveal delay={1}>
             <h2 className="h-display sec-title">
