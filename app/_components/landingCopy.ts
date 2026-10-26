@@ -24,7 +24,8 @@ export const landingCopy: Record<LanguageCode, any> = {
       ],
       pages: [
         { href: '/tracking', b: 'Tracking', s: 'Seguí tu viaje en tiempo real.' },
-        { href: '/galeria', b: 'Galería', s: 'Arte, campañas y la ciudad en movimiento.' },
+        // { href: '/galeria', b: 'Galería', s: 'Arte, campañas y la ciudad en movimiento.' },
+        { href: '/tour', b: 'Tour de la app', s: 'Recorré la app paso a paso.' },
         { href: '/contacto', b: 'Contacto', s: 'Hablemos — soporte, prensa y alianzas.' },
         { href: '/privacidad', b: 'Privacidad', s: 'Política de privacidad.' },
         { href: '/terminos', b: 'Términos', s: 'Términos del servicio.' },
@@ -223,6 +224,7 @@ export const landingCopy: Record<LanguageCode, any> = {
         { n: '05', label: 'Drive with Rundi', href: '/#conducir' },
         { n: '06', label: 'Coverage', href: '/#cobertura' },
         { n: '07', label: 'Download', href: '/#descargar' },
+        { n: '08', label: 'App tour', href: '/tour' },
       ],
       pages: [
         { href: '/tracking', b: 'Tracking', s: 'Follow your trip in real time.' },
@@ -425,6 +427,7 @@ export const landingCopy: Record<LanguageCode, any> = {
         { n: '05', label: '成为司机', href: '/#conducir' },
         { n: '06', label: '覆盖范围', href: '/#cobertura' },
         { n: '07', label: '下载', href: '/#descargar' },
+        { n: '08', label: '应用导览', href: '/tour' },
       ],
       pages: [
         { href: '/tracking', b: '行程追踪', s: '实时查看你的行程。' },

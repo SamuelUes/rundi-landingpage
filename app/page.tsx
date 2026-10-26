@@ -6,6 +6,7 @@ import Services from './_components/Services';
 import HowItWorks from './_components/HowItWorks';
 import ScheduledTrips from './_components/ScheduledTrips';
 import AppShowcase from './_components/AppShowcase';
+import AppStory from './_components/story/AppStory';
 import Drivers from './_components/Drivers';
 import Quote from './_components/Quote';
 import Coverage from './_components/Coverage';
@@ -83,6 +84,7 @@ export default function Page() {
         <HowItWorks />
         <ScheduledTrips />
         <AppShowcase />
+        <AppStory />
         <Drivers />
         <Quote />
         <Coverage />

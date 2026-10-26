@@ -89,7 +89,7 @@ export default function Nav() {
             </span>
             <span>{open ? c.close : c.menu}</span>
           </button>
-          <a href="#descargar" className="nav-cta">
+          <a href="/#descargar" className="nav-cta">
             {c.download}
           </a>
         </div>
