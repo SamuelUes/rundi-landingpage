@@ -30,7 +30,7 @@ export default function AppStory({ full = false }: { full?: boolean }) {
       <div className="st-cover">
         <StoryStatement />
         <StoryParallax />
-        {full && <StoryOutro />}
+        {/* {full && <StoryOutro />} */}
       </div>
     </div>
   );
